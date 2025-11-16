@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "name": "کوله پشتی",
+    "slug": "backpack",
+    "description": "انواع کوله پشتی برای استفاده روزمره و مسافرت",
+    "image": "/images/products/product-1.jpg"
+  },
+  {
+    "id": "2",
+    "name": "کیف لپ‌تاپ",
+    "slug": "laptop-bag",
+    "description": "کیف‌های مخصوص لپ‌تاپ با حفاظت بالا",
+    "image": "/images/products/product-4.jpg"
+  },
+  {
+    "id": "3",
+    "name": "کیف مدرسه",
+    "slug": "school-bag",
+    "description": "کوله پشتی و کیف‌های مناسب دانش‌آموزان",
+    "image": "/images/products/product-11.jpg"
+  }
+]
