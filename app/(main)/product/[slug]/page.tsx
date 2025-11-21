@@ -87,57 +87,33 @@ export default function ProductPage() {
     : 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <div className="text-sm text-gray-600 mb-6">
-        <span>خانه</span>
-        <span className="mx-2">/</span>
-        <span>فروشگاه</span>
-        <span className="mx-2">/</span>
-        <span className="text-secondary">{product.name}</span>
-      </div>
+    <div className="bg-white">
+      <div className="container mx-auto px-4 pt-6 pb-8">
+        {/* Breadcrumb */}
+        <div className="text-sm text-gray-600 mb-6">
+          <span>خانه</span>
+          <span className="mx-2">/</span>
+          <span>فروشگاه</span>
+          <span className="mx-2">/</span>
+          <span className="text-secondary">{product.name}</span>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-        {/* Product Images */}
-        <div>
-          {/* Main Image Carousel */}
-          <Swiper
-            modules={[Navigation, Thumbs]}
-            navigation
-            thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-            className="rounded-lg overflow-hidden mb-4"
-          >
-            {product.images.map((image, index) => (
-              <SwiperSlide key={index}>
-                <div className="relative aspect-square">
-                  <Image
-                    src={image}
-                    alt={`${product.name} - تصویر ${index + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-
-          {/* Thumbnails */}
-          {product.images.length > 1 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+          {/* Product Images */}
+          <div>
+            {/* Main Image Carousel */}
             <Swiper
-              modules={[FreeMode, Thumbs]}
-              onSwiper={setThumbsSwiper}
-              spaceBetween={10}
-              slidesPerView={4}
-              freeMode={true}
-              watchSlidesProgress={true}
-              className="thumbs-swiper"
+              modules={[Navigation, Thumbs]}
+              navigation
+              thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+              className="rounded-lg overflow-hidden mb-4"
             >
               {product.images.map((image, index) => (
-                <SwiperSlide key={index} className="cursor-pointer">
-                  <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-colors">
+                <SwiperSlide key={index}>
+                  <div className="relative aspect-square">
                     <Image
                       src={image}
-                      alt={`${product.name} - بندانگشتی ${index + 1}`}
+                      alt={`${product.name} - تصویر ${index + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -145,142 +121,168 @@ export default function ProductPage() {
                 </SwiperSlide>
               ))}
             </Swiper>
-          )}
-        </div>
 
-        {/* Product Info */}
-        <div>
-          <h1 className="text-3xl font-bold text-secondary mb-4">
-            {product.name}
-          </h1>
-
-          {/* Rating */}
-          {product.rating && (
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={i < Math.floor(product.rating!) ? 'text-yellow-400' : 'text-gray-300'}
-                  />
+            {/* Thumbnails */}
+            {product.images.length > 1 && (
+              <Swiper
+                modules={[FreeMode, Thumbs]}
+                onSwiper={setThumbsSwiper}
+                spaceBetween={10}
+                slidesPerView={4}
+                freeMode={true}
+                watchSlidesProgress={true}
+                className="thumbs-swiper"
+              >
+                {product.images.map((image, index) => (
+                  <SwiperSlide key={index} className="cursor-pointer">
+                    <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-colors">
+                      <Image
+                        src={image}
+                        alt={`${product.name} - بندانگشتی ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </SwiperSlide>
                 ))}
-                <span className="text-gray-600 mr-2">{product.rating}</span>
-              </div>
-              <span className="text-gray-500">({product.reviewCount} نظر)</span>
-            </div>
-          )}
-
-          {/* Price */}
-          <div className="mb-6">
-            {product.originalPrice && (
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl text-gray-400 line-through">
-                  {product.originalPrice.toLocaleString('fa-IR')} تومان
-                </span>
-                <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">
-                  {discount}% تخفیف
-                </span>
-              </div>
-            )}
-            <div className="text-4xl font-bold text-primary">
-              {product.price.toLocaleString('fa-IR')} تومان
-            </div>
-          </div>
-
-          {/* Stock Status */}
-          <div className="mb-6">
-            {product.inStock ? (
-              <span className="text-green-600 font-semibold">✓ موجود در انبار</span>
-            ) : (
-              <span className="text-red-600 font-semibold">ناموجود</span>
+              </Swiper>
             )}
           </div>
 
-          {/* Description */}
-          <div className="mb-6">
-            <h3 className="font-bold text-lg mb-2">توضیحات محصول</h3>
-            <p className="text-gray-600 leading-relaxed">{product.description}</p>
-          </div>
+          {/* Product Info */}
+          <div>
+            <h1 className="text-3xl font-bold text-secondary mb-4">
+              {product.name}
+            </h1>
 
-          {/* Quantity */}
-          <div className="mb-6">
-            <label className="font-semibold mb-2 block">تعداد:</label>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                -
-              </button>
-              <span className="w-12 text-center font-semibold">{quantity}</span>
-              <button
-                onClick={() => setQuantity(quantity + 1)}
-                className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                +
-              </button>
-            </div>
-          </div>
+            {/* Rating */}
+            {product.rating && (
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className={i < Math.floor(product.rating!) ? 'text-yellow-400' : 'text-gray-300'}
+                    />
+                  ))}
+                  <span className="text-gray-600 mr-2">{product.rating}</span>
+                </div>
+                <span className="text-gray-500">({product.reviewCount} نظر)</span>
+              </div>
+            )}
 
-          {/* Actions */}
-          <div className="flex gap-3 mb-6">
-            <button
-              onClick={handleAddToCart}
-              disabled={!product.inStock || isAdding}
-              className="flex-1 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isAdding ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  در حال افزودن...
-                </>
-              ) : (
-                <>
-                  <FaShoppingCart />
-                  افزودن به سبد خرید
-                </>
+            {/* Price */}
+            <div className="mb-6">
+              {product.originalPrice && (
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-2xl text-gray-400 line-through">
+                    {product.originalPrice.toLocaleString('fa-IR')} تومان
+                  </span>
+                  <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">
+                    {discount}% تخفیف
+                  </span>
+                </div>
               )}
-            </button>
-            <button
-              onClick={() => inWishlist ? removeFromWishlist(product.id) : addToWishlist(product)}
-              className={`w-12 h-12 rounded-lg transition-all flex items-center justify-center ${inWishlist
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'border border-gray-300 hover:bg-gray-100'
-                }`}
-              title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
-            >
-              <FaHeart className={inWishlist ? 'text-white' : 'text-gray-600'} />
-            </button>
-            <button className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center">
-              <FaShare className="text-gray-600" />
-            </button>
-          </div>
+              <div className="text-4xl font-bold text-primary">
+                {product.price.toLocaleString('fa-IR')} تومان
+              </div>
+            </div>
 
-          {/* Features */}
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="font-bold mb-3">ویژگی‌های محصول</h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li>✓ ضمانت اصالت کالا</li>
-              <li>✓ ارسال سریع به سراسر کشور</li>
-              <li>✓ 7 روز ضمانت بازگشت</li>
-              <li>✓ پشتیبانی 24 ساعته</li>
-            </ul>
+            {/* Stock Status */}
+            <div className="mb-6">
+              {product.inStock ? (
+                <span className="text-green-600 font-semibold">✓ موجود در انبار</span>
+              ) : (
+                <span className="text-red-600 font-semibold">ناموجود</span>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="mb-6">
+              <h3 className="font-bold text-lg mb-2">توضیحات محصول</h3>
+              <p className="text-gray-600 leading-relaxed">{product.description}</p>
+            </div>
+
+            {/* Quantity */}
+            <div className="mb-6">
+              <label className="font-semibold mb-2 block">تعداد:</label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  -
+                </button>
+                <span className="w-12 text-center font-semibold">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mb-6">
+              <button
+                onClick={handleAddToCart}
+                disabled={!product.inStock || isAdding}
+                className="flex-1 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isAdding ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    در حال افزودن...
+                  </>
+                ) : (
+                  <>
+                    <FaShoppingCart />
+                    افزودن به سبد خرید
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => inWishlist ? removeFromWishlist(product.id) : addToWishlist(product)}
+                className={`w-12 h-12 rounded-lg transition-all flex items-center justify-center ${inWishlist
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'border border-gray-300 hover:bg-gray-100'
+                  }`}
+                title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+              >
+                <FaHeart className={inWishlist ? 'text-white' : 'text-gray-600'} />
+              </button>
+              <button className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center">
+                <FaShare className="text-gray-600" />
+              </button>
+            </div>
+
+            {/* Features */}
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h3 className="font-bold mb-3">ویژگی‌های محصول</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>✓ ضمانت اصالت کالا</li>
+                <li>✓ ارسال سریع به سراسر کشور</li>
+                <li>✓ 7 روز ضمانت بازگشت</li>
+                <li>✓ پشتیبانی 24 ساعته</li>
+              </ul>
+            </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <ProductReviews productId={product.id} productName={product.name} />
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <div>
+            <ProductCarousel
+              products={relatedProducts}
+              title="محصولات مرتبط"
+            />
+          </div>
+        )}
       </div>
-
-      {/* Reviews Section */}
-      <ProductReviews productId={product.id} productName={product.name} />
-
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <div>
-          <ProductCarousel
-            products={relatedProducts}
-            title="محصولات مرتبط"
-          />
-        </div>
-      )}
     </div>
   );
 }

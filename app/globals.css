@@ -28,6 +28,7 @@ body {
   height: 40px;
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 }
 
 .product-carousel .swiper-button-next:after,
@@ -51,6 +52,28 @@ body {
 .thumbs-swiper .swiper-slide-thumb-active {
   opacity: 1;
   border-color: #FF4444 !important;
+}
+
+/* Product Page Swiper */
+.swiper {
+  position: relative;
+  z-index: 1;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #FF4444;
+  background: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 18px;
 }
 
 
