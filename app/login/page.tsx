@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaUser, FaLock, FaEnvelope, FaPhone } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/lib/context/AuthContext';
 
 export default function LoginPage() {
     const router = useRouter();
+    const { login, isAuthenticated } = useAuth();
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
         email: '',
@@ -17,6 +19,13 @@ export default function LoginPage() {
         confirmPassword: ''
     });
     const [isLoading, setIsLoading] = useState(false);
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/account');
+        }
+    }, [isAuthenticated, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,20 +60,12 @@ export default function LoginPage() {
         setTimeout(() => {
             if (isLogin) {
                 // Mock login
-                localStorage.setItem('maysa-user', JSON.stringify({
-                    name: 'کاربر مایسا',
-                    email: formData.email,
-                    phone: '09123456789'
-                }));
+                login(formData.email, formData.password, 'کاربر مایسا');
                 toast.success('با موفقیت وارد شدید', { icon: '👋' });
                 router.push('/account');
             } else {
                 // Mock register
-                localStorage.setItem('maysa-user', JSON.stringify({
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone
-                }));
+                login(formData.email, formData.password, formData.name);
                 toast.success('ثبت‌نام با موفقیت انجام شد', { icon: '🎉' });
                 router.push('/account');
             }

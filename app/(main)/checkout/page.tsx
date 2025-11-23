@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { FaCheckCircle, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa';
 import { useCart } from '@/lib/context/CartContext';
 import toast from 'react-hot-toast';
+import Breadcrumb from '@/components/ui/Breadcrumb';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -111,6 +112,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb items={[
+        { label: 'سبد خرید', href: '/cart' },
+        { label: 'تکمیل خرید' }
+      ]} />
       <h1 className="text-3xl font-bold mb-8 text-secondary">تکمیل خرید</h1>
 
       {/* Progress Steps */}
@@ -357,6 +362,21 @@ export default function CheckoutPage() {
                 با خرید {(2000000 - totalPrice).toLocaleString('fa-IR')} تومان دیگر، ارسال رایگان!
               </div>
             )}
+
+            {/* Estimated Delivery */}
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">📦</span>
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-1">زمان تحویل تقریبی</h4>
+                  <p className="text-sm text-blue-800">
+                    {formData.city.toLowerCase().includes('تهران') || formData.city.toLowerCase().includes('کرج')
+                      ? '2-3 روز کاری'
+                      : '3-7 روز کاری'}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaHeart, FaShoppingCart, FaTrash } from 'react-icons/fa';
+import { FaHeart, FaShoppingCart, FaTrash, FaShare } from 'react-icons/fa';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useCart } from '@/lib/context/CartContext';
+import Breadcrumb from '@/components/ui/Breadcrumb';
+import toast from 'react-hot-toast';
 
 export default function WishlistPage() {
     const { items, removeFromWishlist, clearWishlist } = useWishlist();
@@ -48,20 +50,62 @@ export default function WishlistPage() {
         );
     }
 
+    const handleShare = async () => {
+        const wishlistData = {
+            items: items.map(p => p.id),
+            timestamp: Date.now()
+        };
+        
+        const shareId = btoa(JSON.stringify(wishlistData));
+        const shareUrl = `${window.location.origin}/wishlist/shared/${shareId}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'لیست علاقه‌مندی‌های من',
+                    text: `${items.length} محصول در لیست علاقه‌مندی‌های من`,
+                    url: shareUrl,
+                });
+            } catch (err) {
+                // User cancelled or error
+                copyToClipboard(shareUrl);
+            }
+        } else {
+            copyToClipboard(shareUrl);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        toast.success('لینک اشتراک‌گذاری کپی شد!', {
+            icon: '🔗',
+        });
+    };
+
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-between mb-8">
+            <Breadcrumb items={[{ label: 'علاقه‌مندی‌ها' }]} />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <h1 className="text-3xl font-bold text-secondary flex items-center gap-2">
                     <FaHeart className="text-primary" />
                     لیست علاقه‌مندی‌ها
                 </h1>
-                <button
-                    onClick={clearWishlist}
-                    className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-2"
-                >
-                    <FaTrash />
-                    پاک کردن همه
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleShare}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                    >
+                        <FaShare />
+                        <span>اشتراک‌گذاری</span>
+                    </button>
+                    <button
+                        onClick={clearWishlist}
+                        className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-2 px-4 py-2 border border-red-500 rounded-lg hover:bg-red-50"
+                    >
+                        <FaTrash />
+                        <span className="hidden sm:inline">پاک کردن همه</span>
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

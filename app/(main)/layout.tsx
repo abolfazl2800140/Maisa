@@ -1,6 +1,8 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import BottomNav from "@/components/layout/BottomNav";
+import LiveChat from "@/components/ui/LiveChat";
 import { Toaster } from "react-hot-toast";
 
 export default function MainLayout({
@@ -10,6 +12,14 @@ export default function MainLayout({
 }) {
     return (
         <>
+            {/* Skip to Content Link for Accessibility */}
+            <a
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-white focus:rounded-lg focus:font-bold focus:shadow-xl"
+            >
+                پرش به محتوا
+            </a>
+            
             <Toaster
                 position="top-center"
                 reverseOrder={false}
@@ -47,11 +57,13 @@ export default function MainLayout({
                 }}
             />
             <Header />
-            <main className="min-h-screen">
+            <main id="main-content" className="min-h-screen" tabIndex={-1}>
                 {children}
             </main>
             <Footer />
             <ScrollToTop />
+            <BottomNav />
+            <LiveChat />
         </>
     );
 }

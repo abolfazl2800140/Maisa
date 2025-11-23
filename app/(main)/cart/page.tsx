@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaTrash, FaShoppingBag } from 'react-icons/fa';
+import { FaTrash, FaShoppingBag, FaLightbulb, FaTruck } from 'react-icons/fa';
 import { useCart } from '@/lib/context/CartContext';
 import toast from 'react-hot-toast';
+import Breadcrumb from '@/components/ui/Breadcrumb';
+import RelatedProducts from '@/components/product/RelatedProducts';
+import { useProducts } from '@/lib/hooks/useProducts';
 
 export default function CartPage() {
     const { items, removeFromCart, updateQuantity, totalPrice } = useCart();
     const [isMounted, setIsMounted] = useState(false);
+    const { data: allProducts = [] } = useProducts();
 
     useEffect(() => {
         setIsMounted(true);
@@ -65,6 +69,7 @@ export default function CartPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            <Breadcrumb items={[{ label: 'سبد خرید' }]} />
             <h1 className="text-3xl font-bold mb-8 text-secondary">سبد خرید</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -140,6 +145,27 @@ export default function CartPage() {
                             خلاصه سفارش
                         </h2>
 
+                        {/* Discount Code */}
+                        <div className="mb-6 pb-6 border-b">
+                            <h3 className="font-semibold mb-3 text-sm">کد تخفیف</h3>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="کد تخفیف خود را وارد کنید"
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary text-sm"
+                                />
+                                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-semibold text-sm whitespace-nowrap">
+                                    اعمال
+                                </button>
+                            </div>
+                            <div className="flex items-start gap-2 mt-2">
+                                <FaLightbulb className="text-yellow-500 text-sm flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-gray-500">
+                                    کد تخفیف WELCOME10 برای 10% تخفیف
+                                </p>
+                            </div>
+                        </div>
+
                         <div className="space-y-4 mb-6">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">جمع کل:</span>
@@ -161,6 +187,19 @@ export default function CartPage() {
                             </div>
                         </div>
 
+                        {/* Estimated Delivery */}
+                        <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div className="flex items-start gap-2">
+                                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <FaTruck className="text-white text-sm" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-green-800">تحویل سریع</p>
+                                    <p className="text-xs text-green-700">ارسال 2-3 روز کاری</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <Link
                             href="/checkout"
                             className="block w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors mb-3"
@@ -177,6 +216,37 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Related Products */}
+            {items.length > 0 && (
+                <div className="mt-12">
+                    <RelatedProducts
+                        products={getRelatedProducts()}
+                        title="محصولات پیشنهادی"
+                        subtitle="با خرید این محصولات، سبد خرید خود را کامل کنید"
+                    />
+                </div>
+            )}
         </div>
     );
+
+    // Helper function to get related products
+    function getRelatedProducts() {
+        if (!allProducts.length || !items.length) return [];
+
+        // Get categories of items in cart
+        const cartCategories = items.map(item => item.product.category);
+        
+        // Find products from same categories that are not in cart
+        const cartProductIds = items.map(item => item.product.id);
+        const related = allProducts.filter(
+            product => 
+                cartCategories.includes(product.category) && 
+                !cartProductIds.includes(product.id) &&
+                product.inStock
+        );
+
+        // Return up to 8 products
+        return related.slice(0, 8);
+    }
 }

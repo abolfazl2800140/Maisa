@@ -5,6 +5,9 @@ import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { CartProvider } from "@/lib/context/CartContext";
 import { WishlistProvider } from "@/lib/context/WishlistContext";
+import { ComparisonProvider } from "@/lib/context/ComparisonContext";
+import { AddressProvider } from "@/lib/context/AddressContext";
+import { AuthProvider } from "@/lib/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 
@@ -37,11 +40,17 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-gray-50 font-vazir">
         <QueryProvider>
-          <CartProvider>
-            <WishlistProvider>
-              {children}
-            </WishlistProvider>
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <ComparisonProvider>
+                  <AddressProvider>
+                    {children}
+                  </AddressProvider>
+                </ComparisonProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

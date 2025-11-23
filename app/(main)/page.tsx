@@ -3,13 +3,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import ProductCarousel from '@/components/carousel/ProductCarousel';
+import RecentlyViewed from '@/components/product/RecentlyViewed';
 import categories from '@/data/categories.json';
 import { FaTruck, FaShieldAlt, FaHeadset, FaUndo } from 'react-icons/fa';
 import { useProducts, useFeaturedProducts } from '@/lib/hooks/useProducts';
+import { useRecentlyViewed } from '@/lib/hooks/useRecentlyViewed';
 
 export default function Home() {
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: featuredProducts = [], isLoading: featuredLoading } = useFeaturedProducts();
+  const { items: recentlyViewed } = useRecentlyViewed();
 
   return (
     <div>
@@ -134,6 +137,15 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* Recently Viewed */}
+      {recentlyViewed && recentlyViewed.length > 0 && (
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-4">
+            <RecentlyViewed products={recentlyViewed} />
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-16 bg-primary text-white">

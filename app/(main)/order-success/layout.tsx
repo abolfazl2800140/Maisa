@@ -4,7 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import QueryProvider from '@/components/providers/QueryProvider';
 import { CartProvider } from '@/lib/context/CartContext';
 import { WishlistProvider } from '@/lib/context/WishlistContext';
-import '../globals.css';
+import '../../globals.css';
 
 export default function OrderSuccessLayout({ children }: { children: ReactNode }) {
     return (

@@ -1,23 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Thumbs, FreeMode } from 'swiper/modules';
+import { Navigation, Thumbs, FreeMode, Zoom } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 import ProductCarousel from '@/components/carousel/ProductCarousel';
 import ProductReviews from '@/components/product/ProductReviews';
+import StickyAddToCart from '@/components/product/StickyAddToCart';
+import SizeGuide from '@/components/product/SizeGuide';
 import { useProduct, useProducts } from '@/lib/hooks/useProducts';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
-import { FaStar, FaShoppingCart, FaHeart, FaShare } from 'react-icons/fa';
+import { useRecentlyViewed } from '@/lib/hooks/useRecentlyViewed';
+import { FaStar, FaShoppingCart, FaHeart, FaShare, FaSearchPlus, FaTruck, FaLink } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import Breadcrumb from '@/components/ui/Breadcrumb';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
+import 'swiper/css/zoom';
 
 export default function ProductPage() {
   const params = useParams();
@@ -27,12 +32,20 @@ export default function ProductPage() {
   const { data: allProducts = [] } = useProducts();
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToRecentlyViewed } = useRecentlyViewed();
 
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   const inWishlist = product ? isInWishlist(product.id) : false;
+
+  // Add to recently viewed when product loads
+  useEffect(() => {
+    if (product) {
+      addToRecentlyViewed(product);
+    }
+  }, [product, addToRecentlyViewed]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -90,37 +103,47 @@ export default function ProductPage() {
     <div className="bg-white">
       <div className="container mx-auto px-4 pt-6 pb-8">
         {/* Breadcrumb */}
-        <div className="text-sm text-gray-600 mb-6">
-          <span>خانه</span>
-          <span className="mx-2">/</span>
-          <span>فروشگاه</span>
-          <span className="mx-2">/</span>
-          <span className="text-secondary">{product.name}</span>
-        </div>
+        <Breadcrumb 
+          items={[
+            { label: 'فروشگاه', href: '/shop' },
+            { label: product.name }
+          ]} 
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images */}
           <div>
             {/* Main Image Carousel */}
-            <Swiper
-              modules={[Navigation, Thumbs]}
-              navigation
-              thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-              className="rounded-lg overflow-hidden mb-4"
-            >
-              {product.images.map((image, index) => (
-                <SwiperSlide key={index}>
-                  <div className="relative aspect-square">
-                    <Image
-                      src={image}
-                      alt={`${product.name} - تصویر ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+            <div className="relative group">
+              <Swiper
+                modules={[Navigation, Thumbs, Zoom]}
+                navigation
+                zoom={true}
+                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                className="rounded-lg overflow-hidden mb-4"
+              >
+                {product.images.map((image, index) => (
+                  <SwiperSlide key={index}>
+                    <div className="swiper-zoom-container">
+                      <div className="relative aspect-square">
+                        <Image
+                          src={image}
+                          alt={`${product.name} - تصویر ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <FaSearchPlus className="text-primary" />
+                  <span>برای بزرگنمایی کلیک کنید</span>
+                </div>
+              </div>
+            </div>
 
             {/* Thumbnails */}
             {product.images.length > 1 && (
@@ -252,19 +275,69 @@ export default function ProductPage() {
               >
                 <FaHeart className={inWishlist ? 'text-white' : 'text-gray-600'} />
               </button>
-              <button className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center">
+              <button 
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: product.name,
+                      text: product.description,
+                      url: window.location.href,
+                    }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success('لینک محصول کپی شد');
+                  }
+                }}
+                className="w-12 h-12 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center"
+                title="اشتراک‌گذاری"
+              >
                 <FaShare className="text-gray-600" />
               </button>
+            </div>
+
+            {/* Delivery Info */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 p-6 rounded-lg mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <FaTruck className="text-white text-xl" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-green-900 mb-2">ارسال سریع</h3>
+                  <p className="text-sm text-green-800 mb-2">
+                    تحویل 2-3 روز کاری در تهران و کرج
+                  </p>
+                  <p className="text-xs text-green-700">
+                    ارسال به سراسر کشور: 3-7 روز کاری
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Size Guide */}
+            <div className="mb-6">
+              <SizeGuide category={product.category} />
             </div>
 
             {/* Features */}
             <div className="bg-gray-50 p-6 rounded-lg">
               <h3 className="font-bold mb-3">ویژگی‌های محصول</h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>✓ ضمانت اصالت کالا</li>
-                <li>✓ ارسال سریع به سراسر کشور</li>
-                <li>✓ 7 روز ضمانت بازگشت</li>
-                <li>✓ پشتیبانی 24 ساعته</li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>ضمانت اصالت کالا</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>ارسال سریع به سراسر کشور</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>7 روز ضمانت بازگشت</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>پشتیبانی 24 ساعته</span>
+                </li>
               </ul>
             </div>
           </div>
@@ -283,6 +356,9 @@ export default function ProductPage() {
           </div>
         )}
       </div>
+
+      {/* Sticky Add to Cart for Mobile */}
+      <StickyAddToCart product={product} />
     </div>
   );
 }

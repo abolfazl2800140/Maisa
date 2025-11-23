@@ -17,11 +17,37 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Screen Reader Only */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
 }
 
 /* Swiper Carousel Styles */
 .product-carousel .swiper-button-next,
-.product-carousel .swiper-button-prev {
+.product-carousel .swiper-button-prev,
+.related-products-swiper .swiper-button-next,
+.related-products-swiper .swiper-button-prev {
   color: #FF4444;
   background: white;
   width: 40px;
@@ -32,7 +58,9 @@ body {
 }
 
 .product-carousel .swiper-button-next:after,
-.product-carousel .swiper-button-prev:after {
+.product-carousel .swiper-button-prev:after,
+.related-products-swiper .swiper-button-next:after,
+.related-products-swiper .swiper-button-prev:after {
   font-size: 18px;
 }
 
@@ -42,6 +70,22 @@ body {
 
 .product-carousel .swiper-pagination-bullet-active {
   background: #CC0000;
+}
+
+.recently-viewed-swiper .swiper-button-next,
+.recently-viewed-swiper .swiper-button-prev {
+  color: #FF4444;
+  background: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.recently-viewed-swiper .swiper-button-next:after,
+.recently-viewed-swiper .swiper-button-prev:after {
+  font-size: 18px;
 }
 
 .thumbs-swiper .swiper-slide {
@@ -93,6 +137,32 @@ body {
   animation: fade-in 0.6s ease-out;
 }
 
+@keyframes fade-in-center {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-center {
+  animation: fade-in-center 0.2s ease-out;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+}
+
 /* Smooth Scroll */
 html {
   scroll-behavior: smooth;
@@ -120,4 +190,76 @@ html {
 *:focus-visible {
   outline: 2px solid #FF4444;
   outline-offset: 2px;
+}
+
+/* Additional Animations */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+/* Bottom Navigation Padding */
+.pb-bottom-nav {
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .pb-bottom-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* Glassmorphism Effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FaUser, FaShoppingBag, FaHeart, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaUser, FaShoppingBag, FaHeart, FaCog, FaSignOutAlt, FaMapMarkerAlt } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import Breadcrumb from '@/components/ui/Breadcrumb';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function AccountPage() {
 
   const handleLogout = () => {
     localStorage.removeItem('maysa-user');
-    toast.success('با موفقیت خارج شدید', { icon: '👋' });
+    toast.success('با موفقیت خارج شدید');
     router.push('/');
   };
 
@@ -60,6 +61,7 @@ export default function AccountPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Breadcrumb items={[{ label: 'حساب کاربری' }]} />
       <h1 className="text-3xl font-bold mb-8 text-secondary">حساب کاربری</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -99,6 +101,20 @@ export default function AccountPage() {
                 <FaHeart />
                 <span>علاقه‌مندی‌ها</span>
               </button>
+              <Link
+                href="/account/addresses"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <FaMapMarkerAlt />
+                <span>آدرس‌های من</span>
+              </Link>
+              <Link
+                href="/account/orders"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <FaShoppingBag />
+                <span>سفارشات من</span>
+              </Link>
               <button
                 onClick={() => setActiveTab('settings')}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'settings' ? 'bg-primary text-white' : 'hover:bg-gray-100'
