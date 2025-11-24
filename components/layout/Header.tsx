@@ -132,13 +132,13 @@ export default function Header() {
                   placeholder="جستجوی محصولات..."
                   className="w-full px-4 py-2.5 pr-10 pl-20 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all hover:border-gray-400"
                 />
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-all hover:scale-110"
                 >
                   <FaSearch />
                 </button>
-                
+
                 {/* Clear Button */}
                 {searchQuery && (
                   <button
@@ -150,7 +150,7 @@ export default function Header() {
                     <FaTimes />
                   </button>
                 )}
-                
+
                 {/* Keyboard Shortcut Hint */}
                 {!searchFocused && !searchQuery && (
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 text-xs text-gray-400 pointer-events-none">
@@ -185,11 +185,11 @@ export default function Header() {
                       <FaUserCircle className="text-2xl" />
                       <span className="text-sm font-semibold hidden lg:block">{user?.name}</span>
                     </button>
-                    
+
                     {userMenuOpen && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-40" 
+                        <div
+                          className="fixed inset-0 z-40"
                           onClick={() => setUserMenuOpen(false)}
                         />
                         <div className="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-scale-in">
@@ -208,6 +208,16 @@ export default function Header() {
 
                           {/* Quick Links */}
                           <div className="py-2">
+                            {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                              <Link
+                                href="/admin"
+                                className="flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all group mx-2 rounded-lg mb-2"
+                                onClick={() => setUserMenuOpen(false)}
+                              >
+                                <FaUserCircle className="group-hover:scale-110 transition-transform" />
+                                <span className="font-medium">پنل مدیریت</span>
+                              </Link>
+                            )}
                             <Link
                               href="/account"
                               className="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-primary/5 transition-all group"
@@ -269,9 +279,9 @@ export default function Header() {
                   </Link>
                 )}
               </div>
-              <Link 
-                href="/comparison" 
-                className="hidden sm:block relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5" 
+              <Link
+                href="/comparison"
+                className="hidden sm:block relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5"
                 aria-label="مقایسه محصولات"
               >
                 <FaExchangeAlt className="text-xl group-hover:scale-110 group-hover:rotate-12 transition-all" />
@@ -281,9 +291,9 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              <Link 
-                href="/wishlist" 
-                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-red-50" 
+              <Link
+                href="/wishlist"
+                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-red-50"
                 aria-label="علاقه‌مندی‌ها"
               >
                 <FaHeart className="text-xl group-hover:scale-110 group-hover:text-red-500 transition-all" />
@@ -293,9 +303,9 @@ export default function Header() {
                   </span>
                 )}
               </Link>
-              <Link 
-                href="/cart" 
-                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5" 
+              <Link
+                href="/cart"
+                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5"
                 aria-label="سبد خرید"
               >
                 <FaShoppingCart className="text-xl group-hover:scale-110 transition-all" />
@@ -328,8 +338,8 @@ export default function Header() {
                     className="w-full px-4 py-2.5 pr-10 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     autoFocus
                   />
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-all hover:scale-110"
                   >
                     <FaSearch />
@@ -353,8 +363,8 @@ export default function Header() {
           <nav className="hidden md:block border-t py-4">
             <ul className="flex items-center justify-center gap-6">
               <li>
-                <Link 
-                  href="/" 
+                <Link
+                  href="/"
                   className={`transition-colors font-medium ${isActivePath('/') && pathname === '/' ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
                 >
                   صفحه اصلی
@@ -364,32 +374,32 @@ export default function Header() {
                 <MegaMenu />
               </li>
               <li>
-                <Link 
-                  href="/shop" 
+                <Link
+                  href="/shop"
                   className={`transition-colors font-medium ${isActivePath('/shop') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
                 >
                   فروشگاه
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/blog" 
+                <Link
+                  href="/blog"
                   className={`transition-colors font-medium ${isActivePath('/blog') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
                 >
                   بلاگ
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/about" 
+                <Link
+                  href="/about"
                   className={`transition-colors font-medium ${isActivePath('/about') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
                 >
                   درباره ما
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/contact" 
+                <Link
+                  href="/contact"
                   className={`transition-colors font-medium ${isActivePath('/contact') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
                 >
                   تماس با ما
@@ -402,24 +412,23 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Menu Drawer */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform transition-all duration-300 ease-out md:hidden ${
-          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform transition-all duration-300 ease-out md:hidden ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
           <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
             <FaBars className="text-primary" />
             منو
           </h2>
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(false)}
             className="text-gray-600 hover:text-primary transition-all hover:rotate-90 p-2 rounded-lg hover:bg-gray-100"
             aria-label="بستن منو"
@@ -431,26 +440,24 @@ export default function Header() {
         <nav className="p-4 overflow-y-auto h-[calc(100vh-200px)]">
           <ul className="space-y-1">
             <li>
-              <Link 
-                href="/" 
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${
-                  isActivePath('/') && pathname === '/' ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                }`}
+              <Link
+                href="/"
+                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/') && pathname === '/' ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
+                  }`}
               >
                 صفحه اصلی
               </Link>
             </li>
             <li>
-              <Link 
-                href="/shop" 
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${
-                  isActivePath('/shop') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                }`}
+              <Link
+                href="/shop"
+                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/shop') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
+                  }`}
               >
                 فروشگاه
               </Link>
             </li>
-            
+
             {/* Categories Section */}
             <li className="pt-2">
               <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
@@ -460,24 +467,24 @@ export default function Header() {
               </div>
               <ul className="space-y-1">
                 <li>
-                  <Link 
-                    href="/shop?category=backpack" 
+                  <Link
+                    href="/shop?category=backpack"
                     className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
                   >
                     🎒 کوله پشتی
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    href="/shop?category=laptop-bag" 
+                  <Link
+                    href="/shop?category=laptop-bag"
                     className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
                   >
                     💼 کیف لپ‌تاپ
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    href="/shop?category=school-bag" 
+                  <Link
+                    href="/shop?category=school-bag"
                     className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
                   >
                     🎓 کیف مدرسه
@@ -487,31 +494,28 @@ export default function Header() {
             </li>
 
             <li className="pt-2">
-              <Link 
-                href="/blog" 
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${
-                  isActivePath('/blog') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                }`}
+              <Link
+                href="/blog"
+                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/blog') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
+                  }`}
               >
                 بلاگ
               </Link>
             </li>
             <li>
-              <Link 
-                href="/about" 
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${
-                  isActivePath('/about') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                }`}
+              <Link
+                href="/about"
+                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/about') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
+                  }`}
               >
                 درباره ما
               </Link>
             </li>
             <li>
-              <Link 
-                href="/contact" 
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${
-                  isActivePath('/contact') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                }`}
+              <Link
+                href="/contact"
+                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/contact') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
+                  }`}
               >
                 تماس با ما
               </Link>
@@ -530,8 +534,8 @@ export default function Header() {
                     </div>
                   </div>
                 </div>
-                <Link 
-                  href="/account" 
+                <Link
+                  href="/account"
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium"
                 >
                   <FaUser />
@@ -546,8 +550,8 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium"
               >
                 <FaUser />

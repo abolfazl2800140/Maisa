@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaUser, FaLock, FaEnvelope, FaPhone } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { useAuth } from '@/lib/context/AuthContext';
+import { useAuth, UserRole } from '@/lib/context/AuthContext';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -16,7 +16,8 @@ export default function LoginPage() {
         password: '',
         name: '',
         phone: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'customer' as UserRole
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -60,12 +61,18 @@ export default function LoginPage() {
         setTimeout(() => {
             if (isLogin) {
                 // Mock login
-                login(formData.email, formData.password, 'کاربر مایسا');
+                login(formData.email, formData.password, 'کاربر مایسا', formData.role);
                 toast.success('با موفقیت وارد شدید', { icon: '👋' });
-                router.push('/account');
+
+                // Redirect based on role
+                if (formData.role === 'admin' || formData.role === 'super_admin') {
+                    router.push('/admin');
+                } else {
+                    router.push('/account');
+                }
             } else {
                 // Mock register
-                login(formData.email, formData.password, formData.name);
+                login(formData.email, formData.password, formData.name, 'customer');
                 toast.success('ثبت‌نام با موفقیت انجام شد', { icon: '🎉' });
                 router.push('/account');
             }
@@ -156,6 +163,24 @@ export default function LoginPage() {
                             </div>
                         </div>
 
+                        {isLogin && (
+                            <div>
+                                <label className="block font-semibold mb-2">نقش (برای تست)</label>
+                                <select
+                                    value={formData.role}
+                                    onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+                                >
+                                    <option value="customer">مشتری</option>
+                                    <option value="admin">ادمین</option>
+                                    <option value="super_admin">سوپر ادمین</option>
+                                </select>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    این فیلد فقط برای تست است و در نسخه نهایی حذف می‌شود
+                                </p>
+                            </div>
+                        )}
+
                         {!isLogin && (
                             <div>
                                 <label className="block font-semibold mb-2">تکرار رمز عبور</label>
@@ -212,7 +237,8 @@ export default function LoginPage() {
                                         password: '',
                                         name: '',
                                         phone: '',
-                                        confirmPassword: ''
+                                        confirmPassword: '',
+                                        role: 'customer'
                                     });
                                 }}
                                 className="text-primary font-bold mr-2 hover:underline"

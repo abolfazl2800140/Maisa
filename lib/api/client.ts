@@ -1,57 +1,93 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// API Client برای ارتباط با Backend
 
-export class ApiClient {
-  private static async request<T>(
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+interface RequestOptions extends RequestInit {
+  token?: string;
+}
+
+class ApiClient {
+  private baseURL: string;
+
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
+  }
+
+  private async request<T>(
     endpoint: string,
-    options?: RequestInit
+    options: RequestOptions = {}
   ): Promise<T> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    
+    const { token, ...fetchOptions } = options;
+
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options?.headers,
+      ...fetchOptions.headers,
     };
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${this.baseURL}${endpoint}`, {
+      ...fetchOptions,
       headers,
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'خطا در ارتباط با سرور' }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const error = await response.json().catch(() => ({
+        message: 'خطای ناشناخته',
+      }));
+      throw new Error(error.message || `HTTP Error: ${response.status}`);
     }
 
     return response.json();
   }
 
-  static get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'GET' });
+  // GET
+  async get<T>(endpoint: string, token?: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET', token });
   }
 
-  static post<T>(endpoint: string, data?: unknown): Promise<T> {
+  // POST
+  async post<T>(endpoint: string, data?: any, token?: string): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
+      token,
     });
   }
 
-  static put<T>(endpoint: string, data?: unknown): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  }
-
-  static patch<T>(endpoint: string, data?: unknown): Promise<T> {
+  // PATCH
+  async patch<T>(endpoint: string, data?: any, token?: string): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'PATCH',
       body: JSON.stringify(data),
+      token,
     });
   }
 
-  static delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  // DELETE
+  async delete<T>(endpoint: string, token?: string): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE', token });
   }
 }
+
+export const apiClient = new ApiClient(API_BASE_URL);
+
+// Helper برای گرفتن Token از localStorage
+export const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth-token');
+};
+
+// Helper برای ذخیره Token
+export const setAuthToken = (token: string): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('auth-token', token);
+};
+
+// Helper برای حذف Token
+export const removeAuthToken = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('auth-token');
+};

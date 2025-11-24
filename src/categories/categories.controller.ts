@@ -9,7 +9,7 @@ import { UserRole } from '@prisma/client';
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService) { }
 
   @Get()
   @ApiOperation({ summary: 'لیست دسته‌بندی‌ها' })
@@ -48,5 +48,14 @@ export class CategoriesController {
   @ApiOperation({ summary: 'حذف دسته‌بندی (فقط ادمین)' })
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(id);
+  }
+
+  @Patch(':id/toggle-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.admin, UserRole.super_admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'فعال/غیرفعال کردن دسته‌بندی (فقط ادمین)' })
+  toggleStatus(@Param('id') id: string) {
+    return this.categoriesService.toggleStatus(id);
   }
 }

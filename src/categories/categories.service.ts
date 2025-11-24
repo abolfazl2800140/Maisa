@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll() {
     return this.prisma.category.findMany({
@@ -50,6 +50,19 @@ export class CategoriesService {
     return this.prisma.category.update({
       where: { id },
       data: { isActive: false },
+    });
+  }
+
+  async toggleStatus(id: string) {
+    const category = await this.prisma.category.findUnique({ where: { id } });
+
+    if (!category) {
+      throw new NotFoundException('دسته‌بندی یافت نشد');
+    }
+
+    return this.prisma.category.update({
+      where: { id },
+      data: { isActive: !category.isActive },
     });
   }
 }

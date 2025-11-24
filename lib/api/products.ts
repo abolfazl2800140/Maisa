@@ -1,5 +1,5 @@
 import { Product } from '@/types';
-import { ApiClient } from './client';
+import { apiClient } from './client';
 
 interface BackendProduct {
   id: string;
@@ -49,13 +49,13 @@ interface ProductsResponse {
 function mapBackendProduct(backendProduct: BackendProduct): Product {
   const totalStock = backendProduct.variants?.reduce((sum, v) => sum + v.stock, 0) || 0;
   const hasDiscount = backendProduct.discountPercentage > 0;
-  
+
   // Calculate final price if null
   const basePrice = Number(backendProduct.basePrice);
-  const finalPrice = backendProduct.finalPrice 
+  const finalPrice = backendProduct.finalPrice
     ? Number(backendProduct.finalPrice)
     : basePrice * (1 - backendProduct.discountPercentage / 100);
-  
+
   return {
     id: backendProduct.id,
     name: backendProduct.name,
@@ -66,8 +66,8 @@ function mapBackendProduct(backendProduct: BackendProduct): Product {
     category: backendProduct.category.slug as 'backpack' | 'laptop-bag' | 'school-bag',
     images: backendProduct.images && backendProduct.images.length > 0
       ? backendProduct.images
-          .sort((a, b) => (a.isPrimary ? -1 : b.isPrimary ? 1 : 0))
-          .map(img => img.imageUrl)
+        .sort((a, b) => (a.isPrimary ? -1 : b.isPrimary ? 1 : 0))
+        .map(img => img.imageUrl)
       : ['/images/placeholder.jpg'],
     inStock: totalStock > 0 || true, // Default to true if no variants
     featured: backendProduct.isFeatured,
@@ -78,7 +78,7 @@ function mapBackendProduct(backendProduct: BackendProduct): Product {
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await ApiClient.get<ProductsResponse>('/products?limit=100');
+    const response = await apiClient.get<ProductsResponse>('/products?limit=100');
     return response.data.map(mapBackendProduct);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -88,7 +88,7 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   try {
-    const backendProduct = await ApiClient.get<BackendProduct>(`/products/slug/${slug}`);
+    const backendProduct = await apiClient.get<BackendProduct>(`/products/slug/${slug}`);
     return mapBackendProduct(backendProduct);
   } catch (error) {
     console.error('Error fetching product by slug:', error);
@@ -98,7 +98,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 export async function getProductsByCategory(categoryId: string): Promise<Product[]> {
   try {
-    const response = await ApiClient.get<ProductsResponse>(`/products?categoryId=${categoryId}&limit=100`);
+    const response = await apiClient.get<ProductsResponse>(`/products?categoryId=${categoryId}&limit=100`);
     return response.data.map(mapBackendProduct);
   } catch (error) {
     console.error('Error fetching products by category:', error);
@@ -108,7 +108,7 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
 
 export async function getFeaturedProducts(): Promise<Product[]> {
   try {
-    const response = await ApiClient.get<ProductsResponse>('/products?isFeatured=true&limit=100');
+    const response = await apiClient.get<ProductsResponse>('/products?isFeatured=true&limit=100');
     return response.data.map(mapBackendProduct);
   } catch (error) {
     console.error('Error fetching featured products:', error);
@@ -118,7 +118,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 
 export async function searchProducts(query: string): Promise<Product[]> {
   try {
-    const response = await ApiClient.get<ProductsResponse>(`/products?search=${encodeURIComponent(query)}&limit=100`);
+    const response = await apiClient.get<ProductsResponse>(`/products?search=${encodeURIComponent(query)}&limit=100`);
     return response.data.map(mapBackendProduct);
   } catch (error) {
     console.error('Error searching products:', error);

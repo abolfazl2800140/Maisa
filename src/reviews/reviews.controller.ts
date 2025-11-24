@@ -10,7 +10,16 @@ import { UserRole } from '@prisma/client';
 @ApiTags('reviews')
 @Controller('reviews')
 export class ReviewsController {
-  constructor(private reviewsService: ReviewsService) {}
+  constructor(private reviewsService: ReviewsService) { }
+
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.admin, UserRole.super_admin)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'لیست همه نظرات (فقط ادمین)' })
+  findAll() {
+    return this.reviewsService.findAll();
+  }
 
   @Post()
   @UseGuards(JwtAuthGuard)
