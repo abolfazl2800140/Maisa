@@ -7,7 +7,6 @@ import { useProducts } from '@/lib/hooks/useProducts';
 import { Product } from '@/types';
 import { FaFilter, FaTimes, FaTh, FaList } from 'react-icons/fa';
 import LoadingSkeleton from '@/components/ui/LoadingSkeleton';
-import Breadcrumb from '@/components/ui/Breadcrumb';
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
@@ -216,7 +215,6 @@ export default function ShopPage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 text-secondary">فروشگاه</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <LoadingSkeleton key={i} type="product" />
@@ -229,8 +227,6 @@ export default function ShopPage() {
   return (
     <>
       <div className="container mx-auto px-4 py-8">
-        <Breadcrumb items={[{ label: 'فروشگاه' }]} />
-        <h1 className="text-3xl font-bold mb-6 text-secondary">فروشگاه</h1>
 
         {/* Mobile Filter Button & View Toggle */}
         <div className="flex items-center justify-between mb-6">

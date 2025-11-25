@@ -40,6 +40,11 @@ export default function ProductPage() {
 
   const inWishlist = product ? isInWishlist(product.id) : false;
 
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
+
   // Add to recently viewed when product loads
   useEffect(() => {
     if (product) {

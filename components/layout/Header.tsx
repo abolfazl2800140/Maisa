@@ -10,6 +10,7 @@ import { useWishlist } from '@/lib/context/WishlistContext';
 import { useComparison } from '@/lib/context/ComparisonContext';
 import { useAuth } from '@/lib/context/AuthContext';
 import MegaMenu from './MegaMenu';
+import AuthModal from '@/components/auth/AuthModal';
 import toast from 'react-hot-toast';
 
 export default function Header() {
@@ -18,6 +19,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const { totalItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
   const { items: comparisonItems } = useComparison();
@@ -274,9 +276,13 @@ export default function Header() {
                     )}
                   </>
                 ) : (
-                  <Link href="/login" className="text-secondary hover:text-primary transition-colors" aria-label="ورود">
+                  <button 
+                    onClick={() => setAuthModalOpen(true)}
+                    className="text-secondary hover:text-primary transition-colors" 
+                    aria-label="ورود"
+                  >
                     <FaUser className="text-xl" />
-                  </Link>
+                  </button>
                 )}
               </div>
               <Link
@@ -550,17 +556,23 @@ export default function Header() {
                 </button>
               </>
             ) : (
-              <Link
-                href="/login"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium"
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthModalOpen(true);
+                }}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium w-full"
               >
                 <FaUser />
                 <span>ورود / ثبت نام</span>
-              </Link>
+              </button>
             )}
           </div>
         </nav>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );
 }

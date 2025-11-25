@@ -22,10 +22,10 @@ export default function Home() {
           src="/images/hero-bag.jpg"
           alt="فروشگاه کیف و کوله پشتی مایسا"
           fill
-          className="object-cover brightness-75"
+          className="object-cover object-top brightness-75"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
         <div className="container mx-auto px-4 h-full flex items-center relative z-10">
           <div className="text-white max-w-2xl animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-2xl">

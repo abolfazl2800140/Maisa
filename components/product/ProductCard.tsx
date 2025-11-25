@@ -46,12 +46,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       <>
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-transparent hover:border-primary/20">
           <div className="flex flex-col sm:flex-row gap-4 p-4">
-            <Link href={`/product/${product.slug}`} className="relative w-full sm:w-48 h-48 flex-shrink-0">
+            <Link href={`/product/${product.slug}`} className="relative w-full sm:w-48 h-48 flex-shrink-0 bg-white rounded-lg">
               <Image
                 src={product.images[0] || '/images/placeholder.jpg'}
                 alt={product.name}
                 fill
-                className="object-cover rounded-lg"
+                className="object-contain p-2 rounded-lg"
               />
               {discount > 0 && (
                 <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
@@ -181,12 +181,12 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
     <>
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-transparent hover:border-primary/20 flex flex-col h-[480px]">
         <Link href={`/product/${product.slug}`}>
-          <div className="relative h-64 overflow-hidden bg-gray-100 flex-shrink-0">
+          <div className="relative h-64 overflow-hidden bg-white flex-shrink-0">
             <Image
               src={product.images[0] || '/images/placeholder.jpg'}
               alt={product.name}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
             />
             {discount > 0 && (
               <span className="absolute top-3 right-3 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 animate-pulse">
