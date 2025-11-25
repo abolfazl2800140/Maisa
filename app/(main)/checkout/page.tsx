@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { FaCheckCircle, FaCreditCard, FaMoneyBillWave } from 'react-icons/fa';
 import { useCart } from '@/lib/context/CartContext';
 import toast from 'react-hot-toast';
@@ -320,11 +319,13 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.product.id} className="flex gap-3 pb-3 border-b">
                   <div className="relative w-16 h-16 flex-shrink-0">
-                    <Image
+                    <img
                       src={item.product.images[0]}
                       alt={item.product.name}
-                      fill
-                      className="object-cover rounded"
+                      className="absolute inset-0 w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                      }}
                     />
                   </div>
                   <div className="flex-1">

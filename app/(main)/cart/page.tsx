@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FaTrash, FaShoppingBag, FaLightbulb, FaTruck } from 'react-icons/fa';
 import { useCart } from '@/lib/context/CartContext';
@@ -86,11 +85,13 @@ export default function CartPage() {
                                 className="flex gap-4 p-4 border-b last:border-b-0 hover:bg-gray-50 transition-colors"
                             >
                                 <Link href={`/product/${item.product.slug}`} className="relative w-24 h-24 flex-shrink-0">
-                                    <Image
+                                    <img
                                         src={item.product.images[0]}
                                         alt={item.product.name}
-                                        fill
-                                        className="object-cover rounded-lg"
+                                        className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                                        }}
                                     />
                                 </Link>
 

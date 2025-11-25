@@ -5,9 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class CategoriesService {
   constructor(private prisma: PrismaService) { }
 
-  async findAll() {
+  async findAll(activeOnly = false) {
     return this.prisma.category.findMany({
-      where: { isActive: true },
+      where: activeOnly ? { isActive: true } : {},
       include: {
         parent: true,
         children: true,

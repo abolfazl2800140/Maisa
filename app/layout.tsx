@@ -10,6 +10,7 @@ import { AddressProvider } from "@/lib/context/AddressContext";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import ScrollRestoration from "@/components/ScrollRestoration";
 
 export const metadata: Metadata = {
   title: "فروشگاه مایسا - خرید کیف و کوله پشتی",
@@ -45,6 +46,7 @@ export default function RootLayout({
               <WishlistProvider>
                 <ComparisonProvider>
                   <AddressProvider>
+                    <ScrollRestoration />
                     {children}
                   </AddressProvider>
                 </ComparisonProvider>

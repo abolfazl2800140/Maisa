@@ -2,20 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { adminApi, Brand } from '@/lib/api/admin';
 
-interface Brand {
+interface BrandDisplay {
     id: string;
     name: string;
     slug: string;
+    description?: string;
     productsCount: number;
     isActive: boolean;
 }
 
 export default function BrandsPage() {
-    const [brands, setBrands] = useState<Brand[]>([]);
+    const [brands, setBrands] = useState<BrandDisplay[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+    const [editingBrand, setEditingBrand] = useState<BrandDisplay | null>(null);
+    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
@@ -28,42 +32,52 @@ export default function BrandsPage() {
 
     const fetchBrands = async () => {
         try {
-            setTimeout(() => {
-                const mockBrands: Brand[] = [
-                    { id: '1', name: 'مایسا', slug: 'maysa', productsCount: 85, isActive: true },
-                    { id: '2', name: 'دلسی', slug: 'delsey', productsCount: 42, isActive: true },
-                    { id: '3', name: 'سامسونایت', slug: 'samsonite', productsCount: 38, isActive: true },
-                    { id: '4', name: 'کاترپیلار', slug: 'caterpillar', productsCount: 25, isActive: true },
-                ];
-                setBrands(mockBrands);
-                setLoading(false);
-            }, 500);
-        } catch (error) {
-            console.error('خطا در دریافت برندها:', error);
+            setLoading(true);
+            setError(null);
+            const data = await adminApi.getBrands();
+            const displayBrands: BrandDisplay[] = data.map((brand: Brand) => ({
+                id: brand.id,
+                name: brand.name,
+                slug: brand.slug,
+                description: brand.description,
+                productsCount: brand._count?.products || 0,
+                isActive: brand.isActive,
+            }));
+            setBrands(displayBrands);
+        } catch (err: any) {
+            setError(err.message || 'خطا در دریافت برندها');
+        } finally {
             setLoading(false);
         }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSaving(true);
         try {
-            // TODO: API call
-            alert(editingBrand ? 'برند به‌روزرسانی شد' : 'برند ایجاد شد');
+            if (editingBrand) {
+                await adminApi.updateBrand(editingBrand.id, formData);
+            } else {
+                await adminApi.createBrand(formData);
+            }
             setShowModal(false);
             setEditingBrand(null);
             setFormData({ name: '', slug: '', description: '' });
             fetchBrands();
-        } catch (error) {
-            alert('خطا در ذخیره برند');
+        } catch (err: any) {
+            alert(err.message || 'خطا در ذخیره برند');
+        } finally {
+            setSaving(false);
         }
     };
 
-    const handleEdit = (brand: Brand) => {
+
+    const handleEdit = (brand: BrandDisplay) => {
         setEditingBrand(brand);
         setFormData({
             name: brand.name,
             slug: brand.slug,
-            description: '',
+            description: brand.description || '',
         });
         setShowModal(true);
     };
@@ -71,28 +85,35 @@ export default function BrandsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('آیا از حذف این برند اطمینان دارید?')) return;
         try {
-            // TODO: API call
-            setBrands(brands.filter((b) => b.id !== id));
-            alert('برند حذف شد');
-        } catch (error) {
-            alert('خطا در حذف برند');
+            await adminApi.deleteBrand(id);
+            fetchBrands();
+        } catch (err: any) {
+            alert(err.message || 'خطا در حذف برند');
         }
     };
 
     const toggleStatus = async (id: string) => {
         try {
-            setBrands(
-                brands.map((b) =>
-                    b.id === id ? { ...b, isActive: !b.isActive } : b
-                )
-            );
-        } catch (error) {
-            alert('خطا در تغییر وضعیت');
+            await adminApi.toggleBrandStatus(id);
+            fetchBrands();
+        } catch (err: any) {
+            alert(err.message || 'خطا در تغییر وضعیت');
         }
     };
 
     if (loading) {
         return <div className="h-64 bg-gray-200 rounded animate-pulse"></div>;
+    }
+
+    if (error) {
+        return (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button onClick={fetchBrands} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    تلاش مجدد
+                </button>
+            </div>
+        );
     }
 
     return (
@@ -121,21 +142,11 @@ export default function BrandsPage() {
                 <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                         <tr>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                نام
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                Slug
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                تعداد محصولات
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                وضعیت
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                عملیات
-                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نام</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Slug</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تعداد محصولات</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -145,16 +156,13 @@ export default function BrandsPage() {
                                     <p className="font-medium text-gray-800">{brand.name}</p>
                                 </td>
                                 <td className="px-6 py-4 text-gray-600">{brand.slug}</td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    {brand.productsCount} محصول
-                                </td>
+                                <td className="px-6 py-4 text-gray-600">{brand.productsCount} محصول</td>
                                 <td className="px-6 py-4">
                                     <button
                                         onClick={() => toggleStatus(brand.id)}
-                                        className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${brand.isActive
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800'
-                                            }`}
+                                        className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${
+                                            brand.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                        }`}
                                     >
                                         {brand.isActive ? <FaEye /> : <FaEyeSlash />}
                                         {brand.isActive ? 'فعال' : 'غیرفعال'}
@@ -162,16 +170,10 @@ export default function BrandsPage() {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleEdit(brand)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                        >
+                                        <button onClick={() => handleEdit(brand)} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
                                             <FaEdit size={18} />
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(brand.id)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                        >
+                                        <button onClick={() => handleDelete(brand.id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
                                             <FaTrash size={18} />
                                         </button>
                                     </div>
@@ -180,7 +182,13 @@ export default function BrandsPage() {
                         ))}
                     </tbody>
                 </table>
+                {brands.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-500">برندی یافت نشد</p>
+                    </div>
+                )}
             </div>
+
 
             {/* Modal */}
             {showModal && (
@@ -191,42 +199,30 @@ export default function BrandsPage() {
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    نام *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">نام *</label>
                                 <input
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, name: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Slug *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Slug *</label>
                                 <input
                                     type="text"
                                     value={formData.slug}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, slug: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                     required
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    توضیحات
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">توضیحات</label>
                                 <textarea
                                     value={formData.description}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, description: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={3}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
@@ -234,9 +230,10 @@ export default function BrandsPage() {
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
-                                    className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+                                    disabled={saving}
+                                    className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
                                 >
-                                    ذخیره
+                                    {saving ? 'در حال ذخیره...' : 'ذخیره'}
                                 </button>
                                 <button
                                     type="button"

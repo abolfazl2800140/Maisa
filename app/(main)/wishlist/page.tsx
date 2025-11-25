@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FaHeart, FaShoppingCart, FaTrash, FaShare } from 'react-icons/fa';
 import { useWishlist } from '@/lib/context/WishlistContext';
@@ -121,11 +120,13 @@ export default function WishlistPage() {
                         <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group">
                             <Link href={`/product/${product.slug}`}>
                                 <div className="relative h-64 overflow-hidden bg-gray-100">
-                                    <Image
+                                    <img
                                         src={product.images[0] || '/images/placeholder.jpg'}
                                         alt={product.name}
-                                        fill
-                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                                        }}
                                     />
                                     {discount > 0 && (
                                         <span className="absolute top-3 right-3 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">

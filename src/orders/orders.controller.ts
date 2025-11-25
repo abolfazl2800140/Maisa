@@ -42,9 +42,9 @@ export class OrdersController {
   @ApiOperation({ summary: 'تغییر وضعیت سفارش (فقط ادمین)' })
   updateStatus(
     @Param('id') id: string,
-    @Body('status') status: string,
+    @Body() data: { status: string; trackingCode?: string; adminNotes?: string },
     @GetUser('role') userRole: UserRole,
   ) {
-    return this.ordersService.updateStatus(id, status, userRole);
+    return this.ordersService.updateStatus(id, data, userRole);
   }
 }

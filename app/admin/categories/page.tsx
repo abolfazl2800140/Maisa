@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { adminApi, Category } from '@/lib/api/admin';
 
-interface Category {
+interface CategoryDisplay {
     id: string;
     name: string;
     slug: string;
@@ -13,10 +14,12 @@ interface Category {
 }
 
 export default function CategoriesPage() {
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<CategoryDisplay[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [showModal, setShowModal] = useState(false);
-    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+    const [editingCategory, setEditingCategory] = useState<CategoryDisplay | null>(null);
+    const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
@@ -29,38 +32,55 @@ export default function CategoriesPage() {
 
     const fetchCategories = async () => {
         try {
-            setTimeout(() => {
-                const mockCategories: Category[] = [
-                    { id: '1', name: 'کوله پشتی', slug: 'backpack', productsCount: 45, isActive: true, parentId: null },
-                    { id: '2', name: 'کوله پشتی لپ‌تاپ', slug: 'laptop-backpack', productsCount: 20, isActive: true, parentId: '1' },
-                    { id: '3', name: 'کوله پشتی مدرسه', slug: 'school-backpack', productsCount: 15, isActive: true, parentId: '1' },
-                    { id: '4', name: 'کیف دستی', slug: 'handbag', productsCount: 30, isActive: true, parentId: null },
-                    { id: '5', name: 'کیف لپ‌تاپ', slug: 'laptop-bag', productsCount: 25, isActive: true, parentId: null },
-                ];
-                setCategories(mockCategories);
-                setLoading(false);
-            }, 500);
-        } catch (error) {
-            console.error('خطا در دریافت دسته‌بندی‌ها:', error);
+            setLoading(true);
+            setError(null);
+            const data = await adminApi.getCategories();
+            const displayCategories: CategoryDisplay[] = data.map((cat: Category) => ({
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                productsCount: cat._count?.products || 0,
+                isActive: cat.isActive,
+                parentId: cat.parentId || null,
+            }));
+            setCategories(displayCategories);
+        } catch (err: any) {
+            setError(err.message || 'خطا در دریافت دسته‌بندی‌ها');
+        } finally {
             setLoading(false);
         }
     };
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setSaving(true);
         try {
-            // TODO: API call
-            alert(editingCategory ? 'دسته‌بندی به‌روزرسانی شد' : 'دسته‌بندی ایجاد شد');
+            if (editingCategory) {
+                await adminApi.updateCategory(editingCategory.id, {
+                    name: formData.name,
+                    slug: formData.slug,
+                    parentId: formData.parentId || undefined,
+                });
+            } else {
+                await adminApi.createCategory({
+                    name: formData.name,
+                    slug: formData.slug,
+                    parentId: formData.parentId || undefined,
+                });
+            }
             setShowModal(false);
             setEditingCategory(null);
             setFormData({ name: '', slug: '', parentId: '' });
             fetchCategories();
-        } catch (error) {
-            alert('خطا در ذخیره دسته‌بندی');
+        } catch (err: any) {
+            alert(err.message || 'خطا در ذخیره دسته‌بندی');
+        } finally {
+            setSaving(false);
         }
     };
 
-    const handleEdit = (category: Category) => {
+    const handleEdit = (category: CategoryDisplay) => {
         setEditingCategory(category);
         setFormData({
             name: category.name,
@@ -73,29 +93,37 @@ export default function CategoriesPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('آیا از حذف این دسته‌بندی اطمینان دارید?')) return;
         try {
-            // TODO: API call
-            setCategories(categories.filter((c) => c.id !== id));
-            alert('دسته‌بندی حذف شد');
-        } catch (error) {
-            alert('خطا در حذف دسته‌بندی');
+            await adminApi.deleteCategory(id);
+            fetchCategories();
+        } catch (err: any) {
+            alert(err.message || 'خطا در حذف دسته‌بندی');
         }
     };
 
     const toggleStatus = async (id: string) => {
         try {
-            setCategories(
-                categories.map((c) =>
-                    c.id === id ? { ...c, isActive: !c.isActive } : c
-                )
-            );
-        } catch (error) {
-            alert('خطا در تغییر وضعیت');
+            await adminApi.toggleCategoryStatus(id);
+            fetchCategories();
+        } catch (err: any) {
+            alert(err.message || 'خطا در تغییر وضعیت');
         }
     };
 
     if (loading) {
         return <div className="h-64 bg-gray-200 rounded animate-pulse"></div>;
     }
+
+    if (error) {
+        return (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button onClick={fetchCategories} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    تلاش مجدد
+                </button>
+            </div>
+        );
+    }
+
 
     return (
         <div className="space-y-6">
@@ -123,21 +151,11 @@ export default function CategoriesPage() {
                 <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                         <tr>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                نام
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                Slug
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                تعداد محصولات
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                وضعیت
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                عملیات
-                            </th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نام</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Slug</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تعداد محصولات</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
@@ -150,16 +168,13 @@ export default function CategoriesPage() {
                                     </p>
                                 </td>
                                 <td className="px-6 py-4 text-gray-600">{category.slug}</td>
-                                <td className="px-6 py-4 text-gray-600">
-                                    {category.productsCount} محصول
-                                </td>
+                                <td className="px-6 py-4 text-gray-600">{category.productsCount} محصول</td>
                                 <td className="px-6 py-4">
                                     <button
                                         onClick={() => toggleStatus(category.id)}
-                                        className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${category.isActive
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800'
-                                            }`}
+                                        className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${
+                                            category.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                        }`}
                                     >
                                         {category.isActive ? <FaEye /> : <FaEyeSlash />}
                                         {category.isActive ? 'فعال' : 'غیرفعال'}
@@ -167,16 +182,10 @@ export default function CategoriesPage() {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => handleEdit(category)}
-                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                        >
+                                        <button onClick={() => handleEdit(category)} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
                                             <FaEdit size={18} />
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(category.id)}
-                                            className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                        >
+                                        <button onClick={() => handleDelete(category.id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
                                             <FaTrash size={18} />
                                         </button>
                                     </div>
@@ -185,7 +194,13 @@ export default function CategoriesPage() {
                         ))}
                     </tbody>
                 </table>
+                {categories.length === 0 && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-500">دسته‌بندی‌ای یافت نشد</p>
+                    </div>
+                )}
             </div>
+
 
             {/* Modal */}
             {showModal && (
@@ -196,60 +211,45 @@ export default function CategoriesPage() {
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    نام *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">نام *</label>
                                 <input
                                     type="text"
                                     value={formData.name}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, name: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Slug *
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Slug *</label>
                                 <input
                                     type="text"
                                     value={formData.slug}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, slug: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                                     required
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    دسته‌بندی والد
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">دسته‌بندی والد</label>
                                 <select
                                     value={formData.parentId}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, parentId: e.target.value })
-                                    }
+                                    onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                                 >
                                     <option value="">بدون والد</option>
-                                    {categories
-                                        .filter((c) => !c.parentId)
-                                        .map((c) => (
-                                            <option key={c.id} value={c.id}>
-                                                {c.name}
-                                            </option>
-                                        ))}
+                                    {categories.filter((c) => !c.parentId && c.id !== editingCategory?.id).map((c) => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="submit"
-                                    className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+                                    disabled={saving}
+                                    className="flex-1 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
                                 >
-                                    ذخیره
+                                    {saving ? 'در حال ذخیره...' : 'ذخیره'}
                                 </button>
                                 <button
                                     type="button"

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaSearch, FaEye, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaEye } from 'react-icons/fa';
+import { adminApi, Order } from '@/lib/api/admin';
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
-interface Order {
+interface OrderDisplay {
     id: string;
     orderNumber: string;
     customerName: string;
@@ -49,9 +50,11 @@ const paymentStatusLabels: Record<PaymentStatus, string> = {
     refunded: 'بازگشت داده شده',
 };
 
+
 export default function OrdersPage() {
-    const [orders, setOrders] = useState<Order[]>([]);
+    const [orders, setOrders] = useState<OrderDisplay[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all');
 
@@ -61,28 +64,30 @@ export default function OrdersPage() {
 
     const fetchOrders = async () => {
         try {
-            // TODO: داده‌های نمونه - بعداً از API
-            setTimeout(() => {
-                const mockOrders: Order[] = Array.from({ length: 15 }, (_, i) => ({
-                    id: `order-${i + 1}`,
-                    orderNumber: `ORD-${1000 + i}`,
-                    customerName: `مشتری ${i + 1}`,
-                    customerEmail: `customer${i + 1}@example.com`,
-                    totalAmount: Math.floor(Math.random() * 5000000) + 500000,
-                    status: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'][
-                        Math.floor(Math.random() * 5)
-                    ] as OrderStatus,
-                    paymentStatus: ['pending', 'paid', 'failed'][
-                        Math.floor(Math.random() * 3)
-                    ] as PaymentStatus,
-                    itemsCount: Math.floor(Math.random() * 5) + 1,
-                    createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-                }));
-                setOrders(mockOrders);
-                setLoading(false);
-            }, 500);
-        } catch (error) {
-            console.error('خطا در دریافت سفارشات:', error);
+            setLoading(true);
+            setError(null);
+            const response = await adminApi.getOrders();
+            
+            // تبدیل داده‌های API به فرمت نمایشی
+            const displayOrders: OrderDisplay[] = (response.data || response as unknown as Order[]).map((order: Order) => ({
+                id: order.id,
+                orderNumber: order.orderNumber,
+                customerName: order.user 
+                    ? `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || 'بدون نام'
+                    : 'بدون نام',
+                customerEmail: order.user?.email || '-',
+                totalAmount: Number(order.totalAmount),
+                status: order.status as OrderStatus,
+                paymentStatus: order.paymentStatus as PaymentStatus,
+                itemsCount: order.items?.length || 0,
+                createdAt: order.createdAt,
+            }));
+            
+            setOrders(displayOrders);
+        } catch (err: any) {
+            console.error('خطا در دریافت سفارشات:', err);
+            setError(err.message || 'خطا در دریافت سفارشات');
+        } finally {
             setLoading(false);
         }
     };
@@ -116,6 +121,21 @@ export default function OrdersPage() {
             </div>
         );
     }
+
+    if (error) {
+        return (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button
+                    onClick={fetchOrders}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                    تلاش مجدد
+                </button>
+            </div>
+        );
+    }
+
 
     return (
         <div className="space-y-6">
@@ -220,16 +240,14 @@ export default function OrdersPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-block px-3 py-1 text-sm rounded-full ${statusColors[order.status]
-                                                }`}
+                                            className={`inline-block px-3 py-1 text-sm rounded-full ${statusColors[order.status]}`}
                                         >
                                             {statusLabels[order.status]}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`inline-block px-3 py-1 text-sm rounded-full ${paymentStatusColors[order.paymentStatus]
-                                                }`}
+                                            className={`inline-block px-3 py-1 text-sm rounded-full ${paymentStatusColors[order.paymentStatus]}`}
                                         >
                                             {paymentStatusLabels[order.paymentStatus]}
                                         </span>

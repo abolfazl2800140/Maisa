@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import Image from 'next/image';
 
 interface ImageMagnifierProps {
   src: string;
@@ -46,12 +45,13 @@ export default function ImageMagnifier({
       onMouseMove={handleMouseMove}
     >
       {/* Main Image */}
-      <Image
+      <img
         src={src}
         alt={alt}
-        fill
-        className="object-contain p-4"
-        priority
+        className="absolute inset-0 w-full h-full object-contain p-4"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+        }}
       />
 
       {/* Magnifier Lens */}

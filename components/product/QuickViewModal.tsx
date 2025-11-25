@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types';
 import { FaTimes, FaStar, FaShoppingCart, FaHeart, FaExternalLinkAlt } from 'react-icons/fa';
@@ -86,11 +85,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
               <div>
                 {/* Main Image */}
                 <div className="relative aspect-square mb-4 rounded-xl overflow-hidden bg-gray-100">
-                  <Image
+                  <img
                     src={product.images[selectedImage] || product.images[0]}
                     alt={product.name}
-                    fill
-                    className="object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                    }}
                   />
                   {discount > 0 && (
                     <span className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
@@ -119,11 +120,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <Image
+                        <img
                           src={image}
                           alt={`${product.name} - ${index + 1}`}
-                          fill
-                          className="object-cover"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                          }}
                         />
                       </button>
                     ))}

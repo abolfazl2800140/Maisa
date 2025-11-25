@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FaArrowRight, FaSave, FaPrint } from 'react-icons/fa';
+import { adminApi, Order } from '@/lib/api/admin';
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -50,10 +51,12 @@ export default function OrderDetailPage() {
     const router = useRouter();
     const [order, setOrder] = useState<OrderDetails | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [status, setStatus] = useState<OrderStatus>('pending');
     const [trackingCode, setTrackingCode] = useState('');
     const [adminNotes, setAdminNotes] = useState('');
     const [saving, setSaving] = useState(false);
+
 
     useEffect(() => {
         fetchOrderDetails();
@@ -61,63 +64,63 @@ export default function OrderDetailPage() {
 
     const fetchOrderDetails = async () => {
         try {
-            // TODO: داده‌های نمونه
-            setTimeout(() => {
-                const mockOrder: OrderDetails = {
-                    id: params.id as string,
-                    orderNumber: 'ORD-1001',
-                    customer: {
-                        name: 'علی احمدی',
-                        email: 'ali@example.com',
-                        phone: '09123456789',
-                    },
-                    address: {
-                        fullName: 'علی احمدی',
-                        phone: '09123456789',
-                        province: 'تهران',
-                        city: 'تهران',
-                        postalCode: '1234567890',
-                        addressLine: 'خیابان ولیعصر، پلاک 123',
-                    },
-                    items: [
-                        {
-                            id: '1',
-                            productName: 'کوله پشتی لپ‌تاپ مدل X',
-                            variantDetails: 'رنگ: مشکی، سایز: L',
-                            quantity: 2,
-                            unitPrice: 500000,
-                            totalPrice: 1000000,
-                        },
-                        {
-                            id: '2',
-                            productName: 'کیف دستی چرمی',
-                            variantDetails: 'رنگ: قهوه‌ای',
-                            quantity: 1,
-                            unitPrice: 750000,
-                            totalPrice: 750000,
-                        },
-                    ],
-                    subtotal: 1750000,
-                    discountAmount: 175000,
-                    shippingCost: 50000,
-                    taxAmount: 0,
-                    totalAmount: 1625000,
-                    status: 'pending',
-                    paymentStatus: 'paid',
-                    paymentMethod: 'آنلاین',
-                    trackingCode: '',
-                    notes: 'لطفاً با دقت بسته‌بندی شود',
-                    adminNotes: '',
-                    createdAt: new Date().toISOString(),
-                };
-                setOrder(mockOrder);
-                setStatus(mockOrder.status);
-                setTrackingCode(mockOrder.trackingCode);
-                setAdminNotes(mockOrder.adminNotes);
-                setLoading(false);
-            }, 500);
-        } catch (error) {
-            console.error('خطا در دریافت جزئیات سفارش:', error);
+            setLoading(true);
+            setError(null);
+            const response = await adminApi.getOrder(params.id as string);
+            
+            // تبدیل داده‌های API به فرمت نمایشی
+            const orderDetails: OrderDetails = {
+                id: response.id,
+                orderNumber: response.orderNumber,
+                customer: {
+                    name: response.user 
+                        ? `${response.user.firstName || ''} ${response.user.lastName || ''}`.trim() || 'بدون نام'
+                        : 'بدون نام',
+                    email: response.user?.email || '-',
+                    phone: response.user?.phone || '-',
+                },
+                address: {
+                    fullName: response.address?.fullName || '-',
+                    phone: response.address?.phone || '-',
+                    province: response.address?.province || '-',
+                    city: response.address?.city || '-',
+                    postalCode: response.address?.postalCode || '-',
+                    addressLine: response.address?.addressLine || '-',
+                },
+                items: response.items?.map((item: any) => ({
+                    id: item.id,
+                    productName: item.productName,
+                    variantDetails: item.variantDetails 
+                        ? (typeof item.variantDetails === 'string' 
+                            ? item.variantDetails 
+                            : JSON.stringify(item.variantDetails))
+                        : '-',
+                    quantity: item.quantity,
+                    unitPrice: Number(item.unitPrice),
+                    totalPrice: Number(item.totalPrice),
+                })) || [],
+                subtotal: Number(response.subtotal),
+                discountAmount: Number(response.discountAmount),
+                shippingCost: Number(response.shippingCost),
+                taxAmount: Number(response.taxAmount),
+                totalAmount: Number(response.totalAmount),
+                status: response.status as OrderStatus,
+                paymentStatus: response.paymentStatus,
+                paymentMethod: response.paymentMethod || 'نامشخص',
+                trackingCode: response.trackingCode || '',
+                notes: response.notes || '',
+                adminNotes: response.adminNotes || '',
+                createdAt: response.createdAt,
+            };
+            
+            setOrder(orderDetails);
+            setStatus(orderDetails.status);
+            setTrackingCode(orderDetails.trackingCode);
+            setAdminNotes(orderDetails.adminNotes);
+        } catch (err: any) {
+            console.error('خطا در دریافت جزئیات سفارش:', err);
+            setError(err.message || 'خطا در دریافت جزئیات سفارش');
+        } finally {
             setLoading(false);
         }
     };
@@ -125,14 +128,15 @@ export default function OrderDetailPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            // TODO: API call
-            console.log('Updating order:', { status, trackingCode, adminNotes });
-            setTimeout(() => {
-                alert('سفارش با موفقیت به‌روزرسانی شد');
-                setSaving(false);
-            }, 1000);
-        } catch (error) {
-            alert('خطا در به‌روزرسانی سفارش');
+            await adminApi.updateOrderStatus(params.id as string, {
+                status,
+                trackingCode: trackingCode || undefined,
+                adminNotes: adminNotes || undefined,
+            });
+            alert('سفارش با موفقیت به‌روزرسانی شد');
+        } catch (err: any) {
+            alert(err.message || 'خطا در به‌روزرسانی سفارش');
+        } finally {
             setSaving(false);
         }
     };
@@ -150,6 +154,20 @@ export default function OrderDetailPage() {
         );
     }
 
+    if (error) {
+        return (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <p className="text-red-600 mb-4">{error}</p>
+                <Link
+                    href="/admin/orders"
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                    بازگشت به لیست سفارشات
+                </Link>
+            </div>
+        );
+    }
+
     if (!order) {
         return (
             <div className="text-center py-12">
@@ -157,6 +175,7 @@ export default function OrderDetailPage() {
             </div>
         );
     }
+
 
     return (
         <div className="space-y-6">
@@ -301,6 +320,7 @@ export default function OrderDetailPage() {
                         </div>
                     )}
                 </div>
+
 
                 {/* Sidebar */}
                 <div className="space-y-6">

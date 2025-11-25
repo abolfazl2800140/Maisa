@@ -2,7 +2,6 @@
 
 import { useComparison } from '@/lib/context/ComparisonContext';
 import { useCart } from '@/lib/context/CartContext';
-import Image from 'next/image';
 import Link from 'next/link';
 import { FaShoppingCart, FaTimes, FaStar, FaCheck, FaTimes as FaX, FaSearch, FaLightbulb } from 'react-icons/fa';
 import toast from 'react-hot-toast';
@@ -90,11 +89,13 @@ export default function ComparisonPage() {
                       </button>
                       <Link href={`/product/${product.slug}`}>
                         <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-                          <Image
+                          <img
                             src={product.images[0]}
                             alt={product.name}
-                            fill
-                            className="object-cover hover:scale-105 transition-transform"
+                            className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                            }}
                           />
                         </div>
                       </Link>

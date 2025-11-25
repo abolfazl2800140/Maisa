@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 
 import ProductCarousel from '@/components/carousel/ProductCarousel';
 import ProductReviews from '@/components/product/ProductReviews';
@@ -134,11 +133,13 @@ export default function ProductPage() {
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <Image
+                    <img
                       src={image}
                       alt={`${product.name} - تصویر ${index + 1}`}
-                      fill
-                      className="object-contain p-1"
+                      className="absolute inset-0 w-full h-full object-contain p-1"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                      }}
                     />
                   </button>
                 ))}
