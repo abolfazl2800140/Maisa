@@ -51,18 +51,22 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
     }
 
-    setTimeout(() => {
+    try {
       if (isLogin) {
-        login(formData.email, formData.password, 'کاربر مایسا', formData.role);
+        await login(formData.email, formData.password);
         toast.success('با موفقیت وارد شدید', { icon: '👋' });
       } else {
-        login(formData.email, formData.password, formData.name, 'customer');
+        // TODO: ثبت‌نام با API
+        await login(formData.email, formData.password, formData.name, 'customer');
         toast.success('ثبت‌نام با موفقیت انجام شد', { icon: '🎉' });
       }
-      setIsLoading(false);
       onClose();
       resetForm();
-    }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || 'خطا در ورود');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {

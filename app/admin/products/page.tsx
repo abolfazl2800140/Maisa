@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import {
     FaPlus,
     FaEdit,
@@ -12,6 +11,8 @@ import {
     FaEye,
     FaEyeSlash,
 } from 'react-icons/fa';
+import { adminApi } from '@/lib/api/admin';
+import toast from 'react-hot-toast';
 
 interface Product {
     id: string;
@@ -40,27 +41,26 @@ export default function ProductsPage() {
 
     const fetchProducts = async () => {
         try {
-            // TODO: فعلاً داده‌های نمونه - بعداً از API می‌گیریم
-            setTimeout(() => {
-                const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
-                    id: `product-${i + 1}`,
-                    name: `کوله پشتی مدل ${i + 1}`,
-                    slug: `backpack-${i + 1}`,
-                    sku: `BP-${1000 + i}`,
-                    basePrice: 500000 + i * 50000,
-                    finalPrice: 450000 + i * 50000,
-                    stockQuantity: Math.floor(Math.random() * 50),
-                    category: 'کوله پشتی',
-                    brand: 'مایسا',
-                    image: '/images/products/backpack-1.jpg',
-                    isActive: Math.random() > 0.2,
-                    isFeatured: Math.random() > 0.7,
-                }));
-                setProducts(mockProducts);
-                setLoading(false);
-            }, 500);
-        } catch (error) {
+            const response = await adminApi.getProducts();
+            const mappedProducts: Product[] = (response.data || response).map((p: any) => ({
+                id: p.id,
+                name: p.name,
+                slug: p.slug,
+                sku: p.sku || '-',
+                basePrice: Number(p.basePrice),
+                finalPrice: Number(p.finalPrice) || Number(p.basePrice),
+                stockQuantity: p.variants?.[0]?.stockQuantity || 0,
+                category: p.category?.name || '-',
+                brand: p.brand?.name || '-',
+                image: p.images?.[0]?.imageUrl || '/images/placeholder.jpg',
+                isActive: p.isActive,
+                isFeatured: p.isFeatured,
+            }));
+            setProducts(mappedProducts);
+        } catch (error: any) {
             console.error('خطا در دریافت محصولات:', error);
+            toast.error(error.message || 'خطا در دریافت محصولات');
+        } finally {
             setLoading(false);
         }
     };
@@ -69,24 +69,28 @@ export default function ProductsPage() {
         if (!confirm('آیا از حذف این محصول اطمینان دارید؟')) return;
 
         try {
-            // TODO: API call
+            await adminApi.deleteProduct(id);
             setProducts(products.filter((p) => p.id !== id));
-            alert('محصول با موفقیت حذف شد');
-        } catch (error) {
-            alert('خطا در حذف محصول');
+            toast.success('محصول با موفقیت حذف شد');
+        } catch (error: any) {
+            toast.error(error.message || 'خطا در حذف محصول');
         }
     };
 
     const toggleStatus = async (id: string) => {
         try {
-            // TODO: API call
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            
+            await adminApi.updateProduct(id, { isActive: !product.isActive });
             setProducts(
                 products.map((p) =>
                     p.id === id ? { ...p, isActive: !p.isActive } : p
                 )
             );
-        } catch (error) {
-            alert('خطا در تغییر وضعیت');
+            toast.success('وضعیت محصول تغییر کرد');
+        } catch (error: any) {
+            toast.error(error.message || 'خطا در تغییر وضعیت');
         }
     };
 
@@ -200,11 +204,13 @@ export default function ProductsPage() {
                                 <tr key={product.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4">
                                         <div className="w-16 h-16 relative rounded-lg overflow-hidden bg-gray-100">
-                                            <Image
+                                            <img
                                                 src={product.image}
                                                 alt={product.name}
-                                                fill
-                                                className="object-cover"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                                                }}
                                             />
                                         </div>
                                     </td>

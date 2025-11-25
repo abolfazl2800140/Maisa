@@ -11,6 +11,8 @@ export function useProducts() {
   return useQuery({
     queryKey: ['products'],
     queryFn: getProducts,
+    staleTime: 0, // همیشه fresh بگیر
+    refetchOnWindowFocus: true, // وقتی پنجره فوکوس شد رفرش کن
   });
 }
 

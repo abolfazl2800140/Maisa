@@ -9,22 +9,41 @@ export class ProductsService {
   async create(dto: CreateProductDto) {
     const { images, variants, ...productData } = dto;
 
+    // Generate base SKU from product name
+    const baseSku = productData.name
+      .substring(0, 3)
+      .toUpperCase()
+      .replace(/[^A-Z]/g, 'X') + '-' + Date.now().toString().slice(-6);
+
+    // اطمینان از یونیک بودن slug
+    let slug = productData.slug;
+    const existingProduct = await this.prisma.product.findUnique({
+      where: { slug },
+    });
+    if (existingProduct) {
+      slug = `${slug}-${Date.now().toString().slice(-6)}`;
+    }
+
     const product = await this.prisma.product.create({
       data: {
         ...productData,
+        slug,
         images: images
           ? {
               create: images.map((img, index) => ({
                 imageUrl: img.imageUrl,
                 altText: img.altText,
-                displayOrder: index,
-                isPrimary: index === 0,
+                displayOrder: img.displayOrder ?? index,
+                isPrimary: img.isPrimary ?? index === 0,
               })),
             }
           : undefined,
         variants: variants
           ? {
-              create: variants,
+              create: variants.map((v, index) => ({
+                ...v,
+                sku: v.sku || `${baseSku}-${index + 1}`,
+              })),
             }
           : undefined,
       },
@@ -86,7 +105,7 @@ export class ProductsService {
         include: {
           category: { select: { id: true, name: true, slug: true } },
           brand: { select: { id: true, name: true, slug: true } },
-          images: { where: { isPrimary: true }, take: 1 },
+          images: { orderBy: { displayOrder: 'asc' }, take: 1 },
         },
       }),
       this.prisma.product.count({ where }),

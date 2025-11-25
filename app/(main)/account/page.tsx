@@ -34,7 +34,10 @@ export default function AccountPage() {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+          <div className="relative">
+            <div className="w-14 h-14 border-4 border-primary/20 rounded-full"></div>
+            <div className="absolute top-0 left-0 w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
         </div>
       </div>
     );

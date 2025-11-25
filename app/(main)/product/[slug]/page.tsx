@@ -3,26 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Thumbs, FreeMode, Zoom } from 'swiper/modules';
-import type { Swiper as SwiperType } from 'swiper';
+
 import ProductCarousel from '@/components/carousel/ProductCarousel';
 import ProductReviews from '@/components/product/ProductReviews';
 import StickyAddToCart from '@/components/product/StickyAddToCart';
 import SizeGuide from '@/components/product/SizeGuide';
+import ImageMagnifier from '@/components/product/ImageMagnifier';
 import { useProduct, useProducts } from '@/lib/hooks/useProducts';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useRecentlyViewed } from '@/lib/hooks/useRecentlyViewed';
-import { FaStar, FaShoppingCart, FaHeart, FaShare, FaSearchPlus, FaTruck, FaLink } from 'react-icons/fa';
+import { FaStar, FaShoppingCart, FaHeart, FaShare, FaTruck } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import Breadcrumb from '@/components/ui/Breadcrumb';
-
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/thumbs';
-import 'swiper/css/free-mode';
-import 'swiper/css/zoom';
+import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers';
 
 export default function ProductPage() {
   const params = useParams();
@@ -34,7 +27,7 @@ export default function ProductPage() {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToRecentlyViewed } = useRecentlyViewed();
 
-  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -76,9 +69,12 @@ export default function ProductPage() {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-600">در حال بارگذاری...</p>
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative">
+              <div className="w-14 h-14 border-4 border-primary/20 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p className="text-gray-500 text-sm">در حال بارگذاری...</p>
           </div>
         </div>
       </div>
@@ -106,74 +102,47 @@ export default function ProductPage() {
 
   return (
     <div className="bg-white">
-      <div className="container mx-auto px-4 pt-6 pb-8">
-        {/* Breadcrumb */}
-        <Breadcrumb 
-          items={[
-            { label: 'فروشگاه', href: '/shop' },
-            { label: product.name }
-          ]} 
-        />
-
+      <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
           {/* Product Images */}
           <div>
-            {/* Main Image Carousel */}
-            <div className="relative group">
-              <Swiper
-                modules={[Navigation, Thumbs, Zoom]}
-                navigation
-                zoom={true}
-                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                className="rounded-lg overflow-hidden mb-4"
-              >
-                {product.images.map((image, index) => (
-                  <SwiperSlide key={index}>
-                    <div className="swiper-zoom-container">
-                      <div className="relative aspect-square">
-                        <Image
-                          src={image}
-                          alt={`${product.name} - تصویر ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="flex items-center gap-2 text-sm text-gray-700">
-                  <FaSearchPlus className="text-primary" />
-                  <span>برای بزرگنمایی کلیک کنید</span>
-                </div>
-              </div>
+            {/* Main Image with Magnifier */}
+            <div className="relative aspect-square bg-white rounded-2xl overflow-hidden mb-4 border border-gray-100">
+              <ImageMagnifier
+                src={product.images[selectedImage] || '/images/placeholder.jpg'}
+                alt={`${product.name} - تصویر ${selectedImage + 1}`}
+                magnifierSize={200}
+                zoomLevel={4}
+              />
+              {discount > 0 && (
+                <span className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold z-20">
+                  {discount}% تخفیف
+                </span>
+              )}
             </div>
 
             {/* Thumbnails */}
             {product.images.length > 1 && (
-              <Swiper
-                modules={[FreeMode, Thumbs]}
-                onSwiper={setThumbsSwiper}
-                spaceBetween={10}
-                slidesPerView={4}
-                freeMode={true}
-                watchSlidesProgress={true}
-                className="thumbs-swiper"
-              >
+              <div className="flex gap-3 justify-center">
                 {product.images.map((image, index) => (
-                  <SwiperSlide key={index} className="cursor-pointer">
-                    <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-colors">
-                      <Image
-                        src={image}
-                        alt={`${product.name} - بندانگشتی ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </SwiperSlide>
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                      selectedImage === index
+                        ? 'border-primary shadow-lg scale-105'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Image
+                      src={image}
+                      alt={`${product.name} - تصویر ${index + 1}`}
+                      fill
+                      className="object-contain p-1"
+                    />
+                  </button>
                 ))}
-              </Swiper>
+              </div>
             )}
           </div>
 
@@ -193,9 +162,9 @@ export default function ProductPage() {
                       className={i < Math.floor(product.rating!) ? 'text-yellow-400' : 'text-gray-300'}
                     />
                   ))}
-                  <span className="text-gray-600 mr-2">{product.rating}</span>
+                  <span className="text-gray-600 mr-2">{toPersianNumbers(product.rating)}</span>
                 </div>
-                <span className="text-gray-500">({product.reviewCount} نظر)</span>
+                <span className="text-gray-500">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
               </div>
             )}
 
@@ -204,15 +173,15 @@ export default function ProductPage() {
               {product.originalPrice && (
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-2xl text-gray-400 line-through">
-                    {product.originalPrice.toLocaleString('fa-IR')} تومان
+                    {formatPricePersian(product.originalPrice)} تومان
                   </span>
                   <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">
-                    {discount}% تخفیف
+                    {toPersianNumbers(discount)}% تخفیف
                   </span>
                 </div>
               )}
               <div className="text-4xl font-bold text-primary">
-                {product.price.toLocaleString('fa-IR')} تومان
+                {formatPricePersian(product.price)} تومان
               </div>
             </div>
 
@@ -241,7 +210,7 @@ export default function ProductPage() {
                 >
                   -
                 </button>
-                <span className="w-12 text-center font-semibold">{quantity}</span>
+                <span className="w-12 text-center font-semibold">{toPersianNumbers(quantity)}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"

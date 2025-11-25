@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import {
@@ -18,7 +18,7 @@ import {
 import { adminApi } from '@/lib/api/admin';
 import toast from 'react-hot-toast';
 import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers';
-import { createProductSchema, createProductInitialValues } from '@/lib/validations/product';
+import { updateProductSchema } from '@/lib/validations/product';
 
 interface ProductVariant {
   id: string;
@@ -26,6 +26,7 @@ interface ProductVariant {
   colorCode: string;
   size: string;
   stockQuantity: number;
+  isNew?: boolean;
 }
 
 interface ProductImage {
@@ -33,6 +34,7 @@ interface ProductImage {
   url: string;
   isPrimary: boolean;
   displayOrder: number;
+  isNew?: boolean;
 }
 
 // کامپوننت نمایش خطا
@@ -74,9 +76,7 @@ const FormInput = ({
               meta.touched && meta.error ? 'border-red-500' : 'border-gray-300'
             }`}
           />
-          {meta.touched && meta.error && (
-            <p className="text-red-500 text-sm mt-1">{meta.error}</p>
-          )}
+          {meta.touched && meta.error && <p className="text-red-500 text-sm mt-1">{meta.error}</p>}
         </>
       )}
     </Field>
@@ -84,48 +84,91 @@ const FormInput = ({
 );
 
 
-export default function NewProductPage() {
+export default function EditProductPage() {
   const router = useRouter();
+  const params = useParams();
+  const productId = params.id as string;
+
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [variants, setVariants] = useState<ProductVariant[]>([
-    { id: '1', color: '', colorCode: '#000000', size: '', stockQuantity: 0 },
-  ]);
+  const [initialValues, setInitialValues] = useState({
+    name: '',
+    slug: '',
+    description: '',
+    categoryId: '',
+    brandId: '',
+    basePrice: '',
+    discountPercentage: '0',
+    isFeatured: false,
+    isActive: true,
+  });
 
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [productImages, setProductImages] = useState<ProductImage[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [draggedImageId, setDraggedImageId] = useState<string | null>(null);
 
   useEffect(() => {
-    loadCategories();
-    loadBrands();
-  }, []);
+    loadData();
+  }, [productId]);
 
-  const loadCategories = async () => {
+  const loadData = async () => {
     try {
-      const data = await adminApi.getCategories();
-      setCategories(data);
-    } catch (error) {
-      console.error('خطا در دریافت دسته‌بندی‌ها:', error);
+      const [product, categoriesData, brandsData] = await Promise.all([
+        adminApi.getProduct(productId),
+        adminApi.getCategories(),
+        adminApi.getBrands(),
+      ]);
+
+      setCategories(categoriesData);
+      setBrands(brandsData);
+
+      setInitialValues({
+        name: product.name,
+        slug: product.slug,
+        description: product.description || '',
+        categoryId: product.category?.id || '',
+        brandId: product.brand?.id || '',
+        basePrice: String(product.basePrice),
+        discountPercentage: String(product.discountPercentage || 0),
+        isFeatured: product.isFeatured,
+        isActive: product.isActive,
+      });
+
+      setVariants(
+        product.variants?.map((v: any) => ({
+          id: v.id,
+          color: v.color || '',
+          colorCode: v.colorCode || '#000000',
+          size: v.size || '',
+          stockQuantity: v.stockQuantity || 0,
+        })) || []
+      );
+
+      setProductImages(
+        product.images?.map((img: any, index: number) => ({
+          id: img.id,
+          url: img.imageUrl,
+          isPrimary: img.isPrimary,
+          displayOrder: img.displayOrder ?? index,
+        })) || []
+      );
+    } catch (error: any) {
+      toast.error('خطا در دریافت اطلاعات محصول');
+      router.push('/admin/products');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const loadBrands = async () => {
-    try {
-      const data = await adminApi.getBrands();
-      setBrands(data);
-    } catch (error) {
-      console.error('خطا در دریافت برندها:', error);
-    }
-  };
-
-  const handleFormSubmit = async (values: typeof createProductInitialValues, { setSubmitting }: any) => {
+  const handleFormSubmit = async (values: typeof initialValues, { setSubmitting }: any) => {
     try {
       const productData = {
         name: values.name,
-        slug: values.slug || values.name.toLowerCase().replace(/\s+/g, '-'),
+        slug: values.slug,
         description: values.description,
         categoryId: values.categoryId,
         brandId: values.brandId || undefined,
@@ -134,23 +177,25 @@ export default function NewProductPage() {
         isFeatured: values.isFeatured,
         isActive: values.isActive,
         variants: variants.filter((v) => v.color || v.size).map((v) => ({
+          id: v.isNew ? undefined : v.id,
           color: v.color,
           colorCode: v.colorCode,
           size: v.size,
           stockQuantity: v.stockQuantity,
         })),
         images: productImages.map((img) => ({
+          id: img.isNew ? undefined : img.id,
           imageUrl: img.url,
           isPrimary: img.isPrimary,
           displayOrder: img.displayOrder,
         })),
       };
 
-      await adminApi.createProduct(productData);
-      toast.success('محصول با موفقیت ایجاد شد');
+      await adminApi.updateProduct(productId, productData);
+      toast.success('محصول با موفقیت ویرایش شد');
       router.push('/admin/products');
     } catch (error: any) {
-      toast.error(error.message || 'خطا در ایجاد محصول');
+      toast.error(error.message || 'خطا در ویرایش محصول');
       setSubmitting(false);
     }
   };
@@ -159,14 +204,12 @@ export default function NewProductPage() {
   const addVariant = () => {
     setVariants([
       ...variants,
-      { id: Date.now().toString(), color: '', colorCode: '#000000', size: '', stockQuantity: 0 },
+      { id: Date.now().toString(), color: '', colorCode: '#000000', size: '', stockQuantity: 0, isNew: true },
     ]);
   };
 
   const removeVariant = (id: string) => {
-    if (variants.length > 1) {
-      setVariants(variants.filter((v) => v.id !== id));
-    }
+    setVariants(variants.filter((v) => v.id !== id));
   };
 
   const updateVariant = (id: string, field: string, value: any) => {
@@ -192,6 +235,7 @@ export default function NewProductPage() {
       url: newImageUrl.trim(),
       isPrimary: productImages.length === 0,
       displayOrder: productImages.length,
+      isNew: true,
     };
 
     setProductImages([...productImages, newImage]);
@@ -203,9 +247,6 @@ export default function NewProductPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    const validFiles: File[] = [];
-
-    // بررسی فایل‌ها
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
 
@@ -219,34 +260,25 @@ export default function NewProductPage() {
         continue;
       }
 
-      validFiles.push(file);
-    }
-
-    if (validFiles.length === 0) return;
-
-    // آپلود فایل‌ها به سرور
-    const uploadToast = toast.loading(`در حال آپلود ${validFiles.length} تصویر...`);
-    
-    try {
-      const result = await adminApi.uploadImages(validFiles);
-      
-      // اضافه کردن URL های آپلود شده به لیست تصاویر
-      const newImages: ProductImage[] = result.urls.map((url, index) => ({
-        id: Date.now().toString() + index,
-        url: `${process.env.NEXT_PUBLIC_API_URL}${url}`,
-        isPrimary: productImages.length === 0 && index === 0,
-        displayOrder: productImages.length + index,
-      }));
-
-      setProductImages((prev) => [...prev, ...newImages]);
-      toast.success('تصاویر با موفقیت آپلود شدند', { id: uploadToast });
-    } catch (error: any) {
-      toast.error(error.message || 'خطا در آپلود تصاویر', { id: uploadToast });
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        const newImage: ProductImage = {
+          id: Date.now().toString() + i,
+          url: base64,
+          isPrimary: productImages.length === 0 && i === 0,
+          displayOrder: productImages.length + i,
+          isNew: true,
+        };
+        setProductImages((prev) => [...prev, newImage]);
+      };
+      reader.readAsDataURL(file);
     }
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    toast.success('تصاویر اضافه شدند');
   };
 
   const removeImage = (id: string) => {
@@ -299,6 +331,16 @@ export default function NewProductPage() {
     setDraggedImageId(null);
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-48 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6">
@@ -308,17 +350,18 @@ export default function NewProductPage() {
           <FaArrowRight size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">افزودن محصول جدید</h1>
-          <p className="text-gray-600 mt-1">اطلاعات محصول را وارد کنید</p>
+          <h1 className="text-2xl font-bold text-gray-800">ویرایش محصول</h1>
+          <p className="text-gray-600 mt-1">{initialValues.name}</p>
         </div>
       </div>
 
       <Formik
-        initialValues={createProductInitialValues}
-        validationSchema={createProductSchema}
+        initialValues={initialValues}
+        validationSchema={updateProductSchema}
         onSubmit={handleFormSubmit}
+        enableReinitialize
       >
-        {({ isSubmitting, values, setFieldValue, errors, touched }) => {
+        {({ isSubmitting, values, errors, touched }) => {
           const finalPrice = values.basePrice
             ? Number(values.basePrice) * (1 - Number(values.discountPercentage) / 100)
             : 0;
@@ -330,19 +373,7 @@ export default function NewProductPage() {
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">اطلاعات محصول</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
-                    <FormInput
-                      label="نام محصول"
-                      name="name"
-                      required
-                      placeholder="مثال: کوله پشتی لپ‌تاپ"
-                      onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                        const slug = e.target.value
-                          .toLowerCase()
-                          .replace(/\s+/g, '-')
-                          .replace(/[^\w\-آ-ی]+/g, '');
-                        setFieldValue('slug', slug);
-                      }}
-                    />
+                    <FormInput label="نام محصول" name="name" required />
                   </div>
 
                   <div className="md:col-span-2">
@@ -352,7 +383,6 @@ export default function NewProductPage() {
                       name="description"
                       rows={3}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent"
-                      placeholder="توضیحات محصول..."
                     />
                     <FormError name="description" />
                   </div>
@@ -400,34 +430,17 @@ export default function NewProductPage() {
               <div className="bg-white rounded-lg shadow p-6">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">قیمت</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput
-                    label="قیمت (تومان)"
-                    name="basePrice"
-                    type="number"
-                    required
-                    placeholder="۵۰۰۰۰۰"
-                  />
-
-                  <FormInput
-                    label="تخفیف (درصد)"
-                    name="discountPercentage"
-                    type="number"
-                    min="0"
-                    max="100"
-                    placeholder="۰"
-                  />
+                  <FormInput label="قیمت (تومان)" name="basePrice" type="number" required />
+                  <FormInput label="تخفیف (درصد)" name="discountPercentage" type="number" min="0" max="100" />
                 </div>
 
                 {values.basePrice && (
                   <div className="mt-4 p-4 bg-primary/5 rounded-xl">
                     <p className="text-sm text-gray-600">قیمت نهایی:</p>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatPricePersian(finalPrice)} تومان
-                    </p>
+                    <p className="text-2xl font-bold text-primary">{formatPricePersian(finalPrice)} تومان</p>
                   </div>
                 )}
               </div>
-
 
               {/* تصاویر محصول */}
               <div className="bg-white rounded-lg shadow p-6">
@@ -454,9 +467,7 @@ export default function NewProductPage() {
                       </div>
                       <div>
                         <p className="text-gray-700 font-medium">برای آپلود تصویر کلیک کنید</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          فرمت‌های مجاز: JPG, PNG, WebP - حداکثر ۵ مگابایت
-                        </p>
+                        <p className="text-sm text-gray-500 mt-1">فرمت‌های مجاز: JPG, PNG, WebP - حداکثر ۵ مگابایت</p>
                       </div>
                     </label>
                   </div>
@@ -492,7 +503,7 @@ export default function NewProductPage() {
                 {productImages.length > 0 && (
                   <div>
                     <p className="text-sm text-gray-600 mb-3">
-                      {toPersianNumbers(productImages.length)} تصویر اضافه شده - برای تغییر ترتیب، تصاویر را بکشید
+                      {toPersianNumbers(productImages.length)} تصویر - برای تغییر ترتیب، تصاویر را بکشید
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {productImages
@@ -624,11 +635,8 @@ export default function NewProductPage() {
                           <input
                             type="number"
                             value={variant.stockQuantity}
-                            onChange={(e) =>
-                              updateVariant(variant.id, 'stockQuantity', Number(e.target.value))
-                            }
+                            onChange={(e) => updateVariant(variant.id, 'stockQuantity', Number(e.target.value))}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                            placeholder="۱۰"
                           />
                         </div>
 
@@ -636,8 +644,7 @@ export default function NewProductPage() {
                           <button
                             type="button"
                             onClick={() => removeVariant(variant.id)}
-                            disabled={variants.length === 1}
-                            className="w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-30"
+                            className="w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg"
                           >
                             <FaTrash className="mx-auto" />
                           </button>
@@ -645,6 +652,10 @@ export default function NewProductPage() {
                       </div>
                     </div>
                   ))}
+
+                  {variants.length === 0 && (
+                    <p className="text-center text-gray-500 py-4">هیچ تنوعی اضافه نشده است</p>
+                  )}
                 </div>
               </div>
 
@@ -672,7 +683,7 @@ export default function NewProductPage() {
                   className="flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
                 >
                   <FaSave />
-                  <span>{isSubmitting ? 'در حال ذخیره...' : 'ذخیره محصول'}</span>
+                  <span>{isSubmitting ? 'در حال ذخیره...' : 'ذخیره تغییرات'}</span>
                 </button>
                 <Link
                   href="/admin/products"

@@ -59,35 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = async (email: string, password: string, name?: string, role: UserRole = 'customer') => {
         try {
-            // TODO: در حالت عادی باید از API واقعی استفاده کنیم
-            // فعلاً برای تست، mock login
-            const userData: User = {
-                id: Math.random().toString(36).substr(2, 9),
-                name: name || email.split('@')[0],
-                email,
-                role,
-            };
-
-            // ذخیره token موقت
-            const mockToken = `mock-token-${userData.id}`;
-            setAuthToken(mockToken);
-
-            setUser(userData);
-
-            // TODO: بعداً این کد رو uncomment کن و mock رو حذف کن
-            /*
+            // لاگین با API واقعی
             const response = await apiClient.post<any>('/auth/login', { email, password });
-            setAuthToken(response.access_token);
+            const token = response.token || response.access_token;
+            setAuthToken(token);
             
-            const userResponse = await apiClient.get<any>('/auth/me', response.access_token);
             const userData: User = {
-                id: userResponse.id,
-                name: `${userResponse.firstName || ''} ${userResponse.lastName || ''}`.trim() || userResponse.email,
-                email: userResponse.email,
-                role: userResponse.role,
+                id: response.user.id,
+                name: `${response.user.firstName || ''} ${response.user.lastName || ''}`.trim() || response.user.email,
+                email: response.user.email,
+                role: response.user.role,
             };
             setUser(userData);
-            */
         } catch (error) {
             console.error('Login error:', error);
             throw error;

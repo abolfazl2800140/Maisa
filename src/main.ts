@@ -1,10 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // افزایش حد مجاز body size برای آپلود فایل
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+
+  // سرو کردن فایل‌های استاتیک (تصاویر آپلود شده)
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    prefix: '/',
+  });
 
   // Enable CORS
   app.enableCors({

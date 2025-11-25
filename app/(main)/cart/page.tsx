@@ -7,6 +7,7 @@ import { FaTrash, FaShoppingBag, FaLightbulb, FaTruck } from 'react-icons/fa';
 import { useCart } from '@/lib/context/CartContext';
 import toast from 'react-hot-toast';
 import Breadcrumb from '@/components/ui/Breadcrumb';
+import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers';
 import RelatedProducts from '@/components/product/RelatedProducts';
 import { useProducts } from '@/lib/hooks/useProducts';
 
@@ -42,7 +43,10 @@ export default function CartPage() {
         return (
             <div className="container mx-auto px-4 py-12">
                 <div className="flex items-center justify-center min-h-[400px]">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+                    <div className="relative">
+                        <div className="w-14 h-14 border-4 border-primary/20 rounded-full"></div>
+                        <div className="absolute top-0 left-0 w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
                 </div>
             </div>
         );
@@ -97,7 +101,7 @@ export default function CartPage() {
                                         </h3>
                                     </Link>
                                     <p className="text-primary font-bold mb-3">
-                                        {item.product.price.toLocaleString('fa-IR')} تومان
+                                        {formatPricePersian(item.product.price)} تومان
                                     </p>
 
                                     <div className="flex items-center justify-between">
@@ -109,7 +113,7 @@ export default function CartPage() {
                                                 -
                                             </button>
                                             <span className="w-12 text-center font-semibold">
-                                                {item.quantity}
+                                                {toPersianNumbers(item.quantity)}
                                             </span>
                                             <button
                                                 onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
@@ -130,7 +134,7 @@ export default function CartPage() {
 
                                 <div className="text-left">
                                     <p className="font-bold text-lg">
-                                        {(item.product.price * item.quantity).toLocaleString('fa-IR')} تومان
+                                        {formatPricePersian(item.product.price * item.quantity)} تومان
                                     </p>
                                 </div>
                             </div>
@@ -170,19 +174,19 @@ export default function CartPage() {
                             <div className="flex justify-between">
                                 <span className="text-gray-600">جمع کل:</span>
                                 <span className="font-semibold">
-                                    {totalPrice.toLocaleString('fa-IR')} تومان
+                                    {formatPricePersian(totalPrice)} تومان
                                 </span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">هزینه ارسال:</span>
                                 <span className="font-semibold">
-                                    {shipping.toLocaleString('fa-IR')} تومان
+                                    {formatPricePersian(shipping)} تومان
                                 </span>
                             </div>
                             <div className="border-t pt-4 flex justify-between text-lg">
                                 <span className="font-bold">مجموع:</span>
                                 <span className="font-bold text-primary">
-                                    {total.toLocaleString('fa-IR')} تومان
+                                    {formatPricePersian(total)} تومان
                                 </span>
                             </div>
                         </div>

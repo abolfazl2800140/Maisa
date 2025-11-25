@@ -18,7 +18,7 @@ export default function ShopPage() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam || 'all');
   const [sortBy, setSortBy] = useState<string>('newest');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000000]);
   const [searchQuery, setSearchQuery] = useState(searchParam || '');
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -126,8 +126,8 @@ export default function ShopPage() {
             <input
               type="radio"
               name="category"
-              value="backpack"
-              checked={selectedCategory === 'backpack'}
+              value="backpacks"
+              checked={selectedCategory === 'backpacks'}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="text-primary"
             />
@@ -137,8 +137,8 @@ export default function ShopPage() {
             <input
               type="radio"
               name="category"
-              value="laptop-bag"
-              checked={selectedCategory === 'laptop-bag'}
+              value="laptop-bags"
+              checked={selectedCategory === 'laptop-bags'}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="text-primary"
             />
@@ -148,8 +148,8 @@ export default function ShopPage() {
             <input
               type="radio"
               name="category"
-              value="school-bag"
-              checked={selectedCategory === 'school-bag'}
+              value="school-bags"
+              checked={selectedCategory === 'school-bags'}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="text-primary"
             />
@@ -165,8 +165,8 @@ export default function ShopPage() {
           <input
             type="range"
             min="0"
-            max="2000000"
-            step="100000"
+            max="10000000"
+            step="500000"
             value={priceRange[1]}
             onChange={(e) => setPriceRange([0, parseInt(e.target.value)])}
             className="w-full accent-primary"
@@ -195,12 +195,12 @@ export default function ShopPage() {
       </div>
 
       {/* Reset Filters */}
-      {(selectedCategory !== 'all' || searchQuery || priceRange[1] < 2000000) && (
+      {(selectedCategory !== 'all' || searchQuery || priceRange[1] < 10000000) && (
         <button
           onClick={() => {
             setSelectedCategory('all');
             setSearchQuery('');
-            setPriceRange([0, 2000000]);
+            setPriceRange([0, 10000000]);
             setSortBy('newest');
             setFilterDrawerOpen(false);
           }}
@@ -236,7 +236,7 @@ export default function ShopPage() {
           >
             <FaFilter />
             <span>فیلترها</span>
-            {(selectedCategory !== 'all' || searchQuery || priceRange[1] < 2000000) && (
+            {(selectedCategory !== 'all' || searchQuery || priceRange[1] < 10000000) && (
               <span className="bg-white text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
                 !
               </span>
@@ -307,7 +307,7 @@ export default function ShopPage() {
                   onClick={() => {
                     setSelectedCategory('all');
                     setSearchQuery('');
-                    setPriceRange([0, 2000000]);
+                    setPriceRange([0, 10000000]);
                   }}
                   className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
                 >

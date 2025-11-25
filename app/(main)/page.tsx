@@ -110,8 +110,11 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           {featuredLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <div className="flex items-center justify-center py-12">
+              <div className="relative w-10 h-10">
+                <div className="absolute w-10 h-10 border-4 border-primary/20 rounded-full"></div>
+                <div className="absolute w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
             </div>
           ) : (
             <ProductCarousel
@@ -126,8 +129,11 @@ export default function Home() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           {productsLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <div className="flex items-center justify-center py-12">
+              <div className="relative w-10 h-10">
+                <div className="absolute w-10 h-10 border-4 border-primary/20 rounded-full"></div>
+                <div className="absolute w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
             </div>
           ) : (
             <ProductCarousel

@@ -347,4 +347,49 @@ export const adminApi = {
         const token = getAuthToken();
         return apiClient.patch(`/users/${id}/toggle-status`, {}, token || undefined);
     },
+
+    // Upload
+    async uploadImage(file: File): Promise<{ url: string }> {
+        const token = getAuthToken();
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'خطا در آپلود تصویر');
+        }
+
+        return response.json();
+    },
+
+    async uploadImages(files: File[]): Promise<{ urls: string[] }> {
+        const token = getAuthToken();
+        const formData = new FormData();
+        files.forEach((file) => {
+            formData.append('files', file);
+        });
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'خطا در آپلود تصاویر');
+        }
+
+        return response.json();
+    },
 };

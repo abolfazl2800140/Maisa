@@ -24,11 +24,13 @@ export default function AdminLayout({
 }) {
     const router = useRouter();
     const pathname = usePathname();
-    const { user, isAdmin, logout } = useAuth();
-    const [loading, setLoading] = useState(true);
+    const { user, isAdmin, logout, loading: authLoading } = useAuth();
     const [sidebarOpen, setSidebarOpen] = useState(true);
 
     useEffect(() => {
+        // صبر کن تا auth loading تموم بشه
+        if (authLoading) return;
+
         // بررسی دسترسی
         if (!user) {
             router.push('/login?redirect=/admin');
@@ -39,28 +41,25 @@ export default function AdminLayout({
             router.push('/');
             return;
         }
-
-        setLoading(false);
-    }, [user, isAdmin, router]);
+    }, [user, isAdmin, router, authLoading]);
 
     const handleLogout = () => {
         logout();
         router.push('/');
     };
 
-    if (loading) {
+    if (authLoading || !user || !isAdmin) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gray-100">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-gray-600">در حال بارگذاری...</p>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="relative">
+                        <div className="w-14 h-14 border-4 border-primary/20 rounded-full"></div>
+                        <div className="absolute top-0 left-0 w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                    <p className="text-gray-500 text-sm">در حال بارگذاری...</p>
                 </div>
             </div>
         );
-    }
-
-    if (!user || !isAdmin) {
-        return null;
     }
 
     const menuItems = [

@@ -278,10 +278,11 @@ export default function Header() {
                 ) : (
                   <button 
                     onClick={() => setAuthModalOpen(true)}
-                    className="text-secondary hover:text-primary transition-colors" 
+                    className="hidden sm:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all font-semibold" 
                     aria-label="ورود"
                   >
-                    <FaUser className="text-xl" />
+                    <FaUser className="text-lg" />
+                    <span>ورود | ثبت نام</span>
                   </button>
                 )}
               </div>

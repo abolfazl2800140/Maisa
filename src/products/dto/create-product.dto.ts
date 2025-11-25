@@ -11,12 +11,23 @@ class ProductImageDto {
   @IsOptional()
   @IsString()
   altText?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isPrimary?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  displayOrder?: number;
 }
 
 class ProductVariantDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  sku: string;
+  sku?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -106,6 +117,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsBoolean()
   isFeatured?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
   @ApiProperty({ required: false, type: [ProductImageDto] })
   @IsOptional()

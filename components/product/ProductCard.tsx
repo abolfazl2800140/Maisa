@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/types';
 import { FaStar, FaShoppingCart, FaHeart, FaEye, FaExchangeAlt } from 'react-icons/fa';
@@ -10,6 +9,7 @@ import { useComparison } from '@/lib/context/ComparisonContext';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import QuickViewModal from './QuickViewModal';
+import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers';
 
 interface ProductCardProps {
   product: Product;
@@ -47,11 +47,13 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-transparent hover:border-primary/20">
           <div className="flex flex-col sm:flex-row gap-4 p-4">
             <Link href={`/product/${product.slug}`} className="relative w-full sm:w-48 h-48 flex-shrink-0 bg-white rounded-lg">
-              <Image
+              <img
                 src={product.images[0] || '/images/placeholder.jpg'}
                 alt={product.name}
-                fill
-                className="object-contain p-2 rounded-lg"
+                className="absolute inset-0 w-full h-full object-contain p-2 rounded-lg"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                }}
               />
               {discount > 0 && (
                 <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
@@ -79,9 +81,9 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   <div className="flex items-center gap-2 mb-3">
                     <div className="flex items-center">
                       <FaStar className="text-yellow-400 text-sm" />
-                      <span className="text-sm text-gray-600 mr-1">{product.rating}</span>
+                      <span className="text-sm text-gray-600 mr-1">{toPersianNumbers(product.rating || 0)}</span>
                     </div>
-                    <span className="text-xs text-gray-500">({product.reviewCount} نظر)</span>
+                    <span className="text-xs text-gray-500">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
                   </div>
                 )}
               </div>
@@ -90,11 +92,11 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 <div>
                   {product.originalPrice && (
                     <span className="text-sm text-gray-400 line-through block">
-                      {product.originalPrice.toLocaleString('fa-IR')} تومان
+                      {formatPricePersian(product.originalPrice)} تومان
                     </span>
                   )}
                   <span className="text-xl font-bold text-primary">
-                    {product.price.toLocaleString('fa-IR')} تومان
+                    {formatPricePersian(product.price)} تومان
                   </span>
                 </div>
 
@@ -182,11 +184,13 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-transparent hover:border-primary/20 flex flex-col h-[480px]">
         <Link href={`/product/${product.slug}`}>
           <div className="relative h-64 overflow-hidden bg-white flex-shrink-0">
-            <Image
+            <img
               src={product.images[0] || '/images/placeholder.jpg'}
               alt={product.name}
-              fill
-              className="object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+              className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+              }}
             />
             {discount > 0 && (
               <span className="absolute top-3 right-3 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 animate-pulse">
@@ -229,9 +233,9 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center">
                 <FaStar className="text-yellow-400 text-sm" />
-                <span className="text-sm text-gray-600 mr-1">{product.rating}</span>
+                <span className="text-sm text-gray-600 mr-1">{toPersianNumbers(product.rating)}</span>
               </div>
-              <span className="text-xs text-gray-500">({product.reviewCount} نظر)</span>
+              <span className="text-xs text-gray-500">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
             </div>
           )}
 
@@ -239,11 +243,11 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
             <div>
               {product.originalPrice && (
                 <span className="text-sm text-gray-400 line-through block">
-                  {product.originalPrice.toLocaleString('fa-IR')} تومان
+                  {formatPricePersian(product.originalPrice)} تومان
                 </span>
               )}
               <span className="text-lg font-bold text-primary">
-                {product.price.toLocaleString('fa-IR')} تومان
+                {formatPricePersian(product.price)} تومان
               </span>
             </div>
 
