@@ -67,12 +67,12 @@ export default function OrdersPage() {
             setLoading(true);
             setError(null);
             const response = await adminApi.getOrders();
-            
+
             // تبدیل داده‌های API به فرمت نمایشی
             const displayOrders: OrderDisplay[] = (response.data || response as unknown as Order[]).map((order: Order) => ({
                 id: order.id,
                 orderNumber: order.orderNumber,
-                customerName: order.user 
+                customerName: order.user
                     ? `${order.user.firstName || ''} ${order.user.lastName || ''}`.trim() || 'بدون نام'
                     : 'بدون نام',
                 customerEmail: order.user?.email || '-',
@@ -82,7 +82,7 @@ export default function OrdersPage() {
                 itemsCount: order.items?.length || 0,
                 createdAt: order.createdAt,
             }));
-            
+
             setOrders(displayOrders);
         } catch (err: any) {
             console.error('خطا در دریافت سفارشات:', err);
@@ -142,13 +142,13 @@ export default function OrdersPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">مدیریت سفارشات</h1>
-                    <p className="text-gray-600 mt-1">{filteredOrders.length} سفارش</p>
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-800">مدیریت سفارشات</h1>
+                    <p className="text-sm lg:text-base text-gray-600 mt-1">{filteredOrders.length} سفارش</p>
                 </div>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4">
                 {(['all', 'pending', 'processing', 'shipped', 'delivered'] as const).map((status) => {
                     const count =
                         status === 'all'
@@ -159,8 +159,8 @@ export default function OrdersPage() {
                             key={status}
                             onClick={() => setFilterStatus(status)}
                             className={`p-4 rounded-lg border-2 transition-all ${filterStatus === status
-                                    ? 'border-primary bg-primary text-white'
-                                    : 'border-gray-200 bg-white hover:border-gray-300'
+                                ? 'border-primary bg-primary text-white'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
                                 }`}
                         >
                             <p className="text-2xl font-bold">{count}</p>
@@ -173,7 +173,7 @@ export default function OrdersPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
                 <div className="relative">
                     <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -186,36 +186,20 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            {/* Orders Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            {/* Orders Table - Desktop */}
+            <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b">
                             <tr>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    شماره سفارش
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    مشتری
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    تعداد آیتم
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    مبلغ کل
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    وضعیت سفارش
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    وضعیت پرداخت
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    زمان ثبت
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    عملیات
-                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">شماره سفارش</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مشتری</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تعداد آیتم</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">مبلغ کل</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت سفارش</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت پرداخت</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">زمان ثبت</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -230,31 +214,23 @@ export default function OrdersPage() {
                                             <p className="text-sm text-gray-600">{order.customerEmail}</p>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600">
-                                        {order.itemsCount} آیتم
-                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">{order.itemsCount} آیتم</td>
                                     <td className="px-6 py-4">
                                         <p className="font-semibold text-gray-800">
                                             {order.totalAmount.toLocaleString('fa-IR')} تومان
                                         </p>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span
-                                            className={`inline-block px-3 py-1 text-sm rounded-full ${statusColors[order.status]}`}
-                                        >
+                                        <span className={`inline-block px-3 py-1 text-sm rounded-full ${statusColors[order.status]}`}>
                                             {statusLabels[order.status]}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span
-                                            className={`inline-block px-3 py-1 text-sm rounded-full ${paymentStatusColors[order.paymentStatus]}`}
-                                        >
+                                        <span className={`inline-block px-3 py-1 text-sm rounded-full ${paymentStatusColors[order.paymentStatus]}`}>
                                             {paymentStatusLabels[order.paymentStatus]}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600 text-sm">
-                                        {getRelativeTime(order.createdAt)}
-                                    </td>
+                                    <td className="px-6 py-4 text-gray-600 text-sm">{getRelativeTime(order.createdAt)}</td>
                                     <td className="px-6 py-4">
                                         <Link
                                             href={`/admin/orders/${order.id}`}
@@ -272,6 +248,58 @@ export default function OrdersPage() {
 
                 {filteredOrders.length === 0 && (
                     <div className="text-center py-12">
+                        <p className="text-gray-500">سفارشی یافت نشد</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Orders Cards - Mobile */}
+            <div className="lg:hidden space-y-4">
+                {filteredOrders.map((order) => (
+                    <div key={order.id} className="bg-white rounded-lg shadow p-4">
+                        <div className="flex items-start justify-between mb-3">
+                            <div>
+                                <p className="font-medium text-gray-800">{order.orderNumber}</p>
+                                <p className="text-sm text-gray-600 mt-1">{order.customerName}</p>
+                                <p className="text-xs text-gray-500">{order.customerEmail}</p>
+                            </div>
+                            <span className="text-xs text-gray-500">{getRelativeTime(order.createdAt)}</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <p className="text-xs text-gray-500 mb-1">مبلغ کل</p>
+                                <p className="font-semibold text-gray-800">
+                                    {order.totalAmount.toLocaleString('fa-IR')} تومان
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-xs text-gray-500 mb-1">تعداد آیتم</p>
+                                <p className="font-medium text-gray-800">{order.itemsCount} آیتم</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 mb-3">
+                            <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status]}`}>
+                                {statusLabels[order.status]}
+                            </span>
+                            <span className={`px-2 py-1 text-xs rounded-full ${paymentStatusColors[order.paymentStatus]}`}>
+                                {paymentStatusLabels[order.paymentStatus]}
+                            </span>
+                        </div>
+
+                        <Link
+                            href={`/admin/orders/${order.id}`}
+                            className="flex items-center justify-center gap-2 w-full px-4 py-2 text-primary bg-primary/10 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                        >
+                            <FaEye size={14} />
+                            <span className="text-sm">مشاهده جزئیات</span>
+                        </Link>
+                    </div>
+                ))}
+
+                {filteredOrders.length === 0 && (
+                    <div className="bg-white rounded-lg shadow p-12 text-center">
                         <p className="text-gray-500">سفارشی یافت نشد</p>
                     </div>
                 )}

@@ -81,7 +81,7 @@ export default function ProductsPage() {
         try {
             const product = products.find(p => p.id === id);
             if (!product) return;
-            
+
             await adminApi.updateProduct(id, { isActive: !product.isActive });
             setProducts(
                 products.map((p) =>
@@ -119,16 +119,16 @@ export default function ProductsPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">مدیریت محصولات</h1>
-                    <p className="text-gray-600 mt-1">
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-800">مدیریت محصولات</h1>
+                    <p className="text-sm lg:text-base text-gray-600 mt-1">
                         {filteredProducts.length} محصول
                     </p>
                 </div>
                 <Link
                     href="/admin/products/new"
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors"
+                    className="flex items-center gap-2 bg-primary text-white px-4 lg:px-6 py-2 lg:py-3 rounded-lg hover:bg-primary-dark transition-colors text-sm lg:text-base w-full sm:w-auto justify-center"
                 >
                     <FaPlus />
                     <span>افزودن محصول</span>
@@ -136,10 +136,10 @@ export default function ProductsPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-lg shadow p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg shadow p-4 lg:p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
                     {/* Search */}
-                    <div className="md:col-span-2">
+                    <div className="lg:col-span-2">
                         <div className="relative">
                             <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input
@@ -167,36 +167,20 @@ export default function ProductsPage() {
                 </div>
             </div>
 
-            {/* Products Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            {/* Products Table - Desktop */}
+            <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50 border-b">
                             <tr>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    تصویر
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    نام محصول
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    SKU
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    دسته‌بندی
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    قیمت
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    موجودی
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    وضعیت
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    عملیات
-                                </th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تصویر</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نام محصول</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">SKU</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">دسته‌بندی</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">قیمت</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">موجودی</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -241,10 +225,10 @@ export default function ProductsPage() {
                                     <td className="px-6 py-4">
                                         <span
                                             className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${product.stockQuantity === 0
-                                                    ? 'bg-red-100 text-red-800'
-                                                    : product.stockQuantity < 10
-                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                        : 'bg-green-100 text-green-800'
+                                                ? 'bg-red-100 text-red-800'
+                                                : product.stockQuantity < 10
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-green-100 text-green-800'
                                                 }`}
                                         >
                                             {product.stockQuantity} عدد
@@ -254,8 +238,8 @@ export default function ProductsPage() {
                                         <button
                                             onClick={() => toggleStatus(product.id)}
                                             className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${product.isActive
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-gray-100 text-gray-800'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-gray-100 text-gray-800'
                                                 }`}
                                         >
                                             {product.isActive ? <FaEye /> : <FaEyeSlash />}
@@ -288,6 +272,95 @@ export default function ProductsPage() {
 
                 {filteredProducts.length === 0 && (
                     <div className="text-center py-12">
+                        <p className="text-gray-500">محصولی یافت نشد</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Products Cards - Mobile */}
+            <div className="lg:hidden space-y-4">
+                {filteredProducts.map((product) => (
+                    <div key={product.id} className="bg-white rounded-lg shadow p-4">
+                        <div className="flex gap-4">
+                            <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                                <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+                                    }}
+                                />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-start justify-between gap-2 mb-2">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-medium text-gray-800 truncate">{product.name}</h3>
+                                        <p className="text-sm text-gray-500">SKU: {product.sku}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => toggleStatus(product.id)}
+                                        className={`flex-shrink-0 p-2 rounded-full ${product.isActive
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-gray-100 text-gray-800'
+                                            }`}
+                                    >
+                                        {product.isActive ? <FaEye size={14} /> : <FaEyeSlash size={14} />}
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap mb-2">
+                                    {product.isFeatured && (
+                                        <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded">
+                                            ویژه
+                                        </span>
+                                    )}
+                                    <span className="text-xs text-gray-600">{product.category}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">
+                                            {product.finalPrice.toLocaleString('fa-IR')} تومان
+                                        </p>
+                                        {product.basePrice !== product.finalPrice && (
+                                            <p className="text-xs text-gray-500 line-through">
+                                                {product.basePrice.toLocaleString('fa-IR')}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <span
+                                        className={`px-2 py-1 text-xs font-semibold rounded-full ${product.stockQuantity === 0
+                                            ? 'bg-red-100 text-red-800'
+                                            : product.stockQuantity < 10
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : 'bg-green-100 text-green-800'
+                                            }`}
+                                    >
+                                        {product.stockQuantity} عدد
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex gap-2 mt-3 pt-3 border-t">
+                            <Link
+                                href={`/admin/products/${product.id}/edit`}
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                            >
+                                <FaEdit size={14} />
+                                <span className="text-sm">ویرایش</span>
+                            </Link>
+                            <button
+                                onClick={() => handleDelete(product.id)}
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                                <FaTrash size={14} />
+                                <span className="text-sm">حذف</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
+                {filteredProducts.length === 0 && (
+                    <div className="bg-white rounded-lg shadow p-12 text-center">
                         <p className="text-gray-500">محصولی یافت نشد</p>
                     </div>
                 )}

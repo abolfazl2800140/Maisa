@@ -119,10 +119,10 @@ export default function BrandsPage() {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">مدیریت برندها</h1>
-                    <p className="text-gray-600 mt-1">{brands.length} برند</p>
+                    <h1 className="text-xl lg:text-2xl font-bold text-gray-800">مدیریت برندها</h1>
+                    <p className="text-sm lg:text-base text-gray-600 mt-1">{brands.length} برند</p>
                 </div>
                 <button
                     onClick={() => {
@@ -130,60 +130,105 @@ export default function BrandsPage() {
                         setFormData({ name: '', slug: '', description: '' });
                         setShowModal(true);
                     }}
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors"
+                    className="flex items-center gap-2 bg-primary text-white px-4 lg:px-6 py-2 lg:py-3 rounded-lg hover:bg-primary-dark transition-colors text-sm lg:text-base w-full sm:w-auto justify-center"
                 >
                     <FaPlus />
                     <span>افزودن برند</span>
                 </button>
             </div>
 
-            {/* Table */}
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
-                        <tr>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نام</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Slug</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تعداد محصولات</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {brands.map((brand) => (
-                            <tr key={brand.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">
-                                    <p className="font-medium text-gray-800">{brand.name}</p>
-                                </td>
-                                <td className="px-6 py-4 text-gray-600">{brand.slug}</td>
-                                <td className="px-6 py-4 text-gray-600">{brand.productsCount} محصول</td>
-                                <td className="px-6 py-4">
-                                    <button
-                                        onClick={() => toggleStatus(brand.id)}
-                                        className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${
-                                            brand.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                        }`}
-                                    >
-                                        {brand.isActive ? <FaEye /> : <FaEyeSlash />}
-                                        {brand.isActive ? 'فعال' : 'غیرفعال'}
-                                    </button>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => handleEdit(brand)} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
-                                            <FaEdit size={18} />
-                                        </button>
-                                        <button onClick={() => handleDelete(brand.id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
-                                            <FaTrash size={18} />
-                                        </button>
-                                    </div>
-                                </td>
+            {/* Table - Desktop */}
+            <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-gray-50 border-b">
+                            <tr>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">نام</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Slug</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">تعداد محصولات</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">وضعیت</th>
+                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">عملیات</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {brands.map((brand) => (
+                                <tr key={brand.id} className="hover:bg-gray-50">
+                                    <td className="px-6 py-4">
+                                        <p className="font-medium text-gray-800">{brand.name}</p>
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-600">{brand.slug}</td>
+                                    <td className="px-6 py-4 text-gray-600">{brand.productsCount} محصول</td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            onClick={() => toggleStatus(brand.id)}
+                                            className={`inline-flex items-center gap-2 px-3 py-1 text-sm rounded-full ${brand.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                                }`}
+                                        >
+                                            {brand.isActive ? <FaEye /> : <FaEyeSlash />}
+                                            {brand.isActive ? 'فعال' : 'غیرفعال'}
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={() => handleEdit(brand)} className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                                                <FaEdit size={18} />
+                                            </button>
+                                            <button onClick={() => handleDelete(brand.id)} className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
+                                                <FaTrash size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    {brands.length === 0 && (
+                        <div className="text-center py-12">
+                            <p className="text-gray-500">برندی یافت نشد</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Cards - Mobile */}
+            <div className="md:hidden space-y-3">
+                {brands.map((brand) => (
+                    <div key={brand.id} className="bg-white rounded-lg shadow p-4">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                                <h3 className="font-medium text-gray-800">{brand.name}</h3>
+                                <p className="text-sm text-gray-500 mt-1">{brand.slug}</p>
+                                <p className="text-xs text-gray-600 mt-1">{brand.productsCount} محصول</p>
+                            </div>
+                            <button
+                                onClick={() => toggleStatus(brand.id)}
+                                className={`flex-shrink-0 p-2 rounded-full ${brand.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                    }`}
+                            >
+                                {brand.isActive ? <FaEye size={14} /> : <FaEyeSlash size={14} />}
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => handleEdit(brand)}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                            >
+                                <FaEdit size={14} />
+                                <span className="text-sm">ویرایش</span>
+                            </button>
+                            <button
+                                onClick={() => handleDelete(brand.id)}
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                            >
+                                <FaTrash size={14} />
+                                <span className="text-sm">حذف</span>
+                            </button>
+                        </div>
+                    </div>
+                ))}
+
                 {brands.length === 0 && (
-                    <div className="text-center py-12">
+                    <div className="bg-white rounded-lg shadow p-12 text-center">
                         <p className="text-gray-500">برندی یافت نشد</p>
                     </div>
                 )}
@@ -192,9 +237,9 @@ export default function BrandsPage() {
 
             {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg p-4 lg:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">
                             {editingBrand ? 'ویرایش برند' : 'افزودن برند'}
                         </h2>
                         <form onSubmit={handleSubmit} className="space-y-4">

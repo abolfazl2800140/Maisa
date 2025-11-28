@@ -1,7 +1,7 @@
-import { Controller, Get, Patch, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { UpdateUserDto, ChangeRoleDto } from './dto';
+import { UpdateUserDto, ChangeRoleDto, CreateAdminDto } from './dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -13,7 +13,7 @@ import { UserRole } from '@prisma/client';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) { }
 
   @Get()
   @Roles(UserRole.super_admin)
@@ -50,5 +50,19 @@ export class UsersController {
   @ApiOperation({ summary: 'فعال/غیرفعال کردن کاربر (فقط سوپر ادمین)' })
   toggleActive(@Param('id') id: string, @GetUser('id') currentUserId: string) {
     return this.usersService.toggleActive(id, currentUserId);
+  }
+
+  @Post('admin')
+  @Roles(UserRole.super_admin)
+  @ApiOperation({ summary: 'ایجاد ادمین جدید (فقط سوپر ادمین)' })
+  createAdmin(@Body() dto: CreateAdminDto) {
+    return this.usersService.createAdmin(dto);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.super_admin)
+  @ApiOperation({ summary: 'حذف کاربر (فقط سوپر ادمین)' })
+  deleteUser(@Param('id') id: string, @GetUser('id') currentUserId: string) {
+    return this.usersService.deleteUser(id, currentUserId);
   }
 }

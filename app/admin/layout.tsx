@@ -25,7 +25,22 @@ export default function AdminLayout({
     const router = useRouter();
     const pathname = usePathname();
     const { user, isAdmin, logout, loading: authLoading } = useAuth();
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) {
+                setSidebarOpen(true);
+            }
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         // صبر کن تا auth loading تموم بشه
@@ -78,28 +93,53 @@ export default function AdminLayout({
 
     return (
         <div className="flex min-h-screen bg-gray-100">
+            {/* Mobile Overlay */}
+            {isMobile && sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
             <aside
-                className={`${sidebarOpen ? 'w-64' : 'w-20'
-                    } bg-white shadow-lg transition-all duration-300 fixed h-full z-30`}
+                className={`
+                    ${isMobile
+                        ? 'w-64'
+                        : sidebarOpen
+                            ? 'w-64'
+                            : 'w-20'
+                    }
+                    ${isMobile
+                        ? sidebarOpen
+                            ? 'right-0'
+                            : '-right-64'
+                        : 'right-0'
+                    }
+                    bg-white shadow-lg transition-all duration-300 fixed h-full z-50
+                `}
             >
                 {/* Header */}
-                <div className="p-6 border-b flex items-center justify-between">
-                    {sidebarOpen && (
-                        <div>
-                            <h1 className="text-xl font-bold text-primary">پنل مدیریت</h1>
-                            <p className="text-sm text-gray-600 mt-1">{user.name}</p>
-                            <span className="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">
-                                {user.role === 'super_admin' ? 'سوپر ادمین' : 'ادمین'}
-                            </span>
-                        </div>
+                <div className="p-4 lg:p-6 border-b flex items-center justify-between">
+                    {(sidebarOpen || isMobile) && (
+                        <h1 className="text-lg lg:text-xl font-bold text-primary">پنل مدیریت</h1>
                     )}
-                    <button
-                        onClick={() => setSidebarOpen(!sidebarOpen)}
-                        className="text-gray-600 hover:text-primary transition-colors"
-                    >
-                        {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
-                    </button>
+                    {!isMobile && (
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="text-gray-600 hover:text-primary transition-colors"
+                        >
+                            {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
+                        </button>
+                    )}
+                    {isMobile && (
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="text-gray-600 hover:text-primary transition-colors"
+                        >
+                            <FaTimes size={20} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Navigation */}
@@ -112,14 +152,19 @@ export default function AdminLayout({
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onClick={() => {
+                                    if (isMobile) {
+                                        setSidebarOpen(false);
+                                    }
+                                }}
                                 className={`flex items-center gap-3 px-6 py-3 transition-colors ${isActive
-                                        ? 'bg-primary text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-primary text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
                                     }`}
-                                title={!sidebarOpen ? item.label : undefined}
+                                title={!sidebarOpen && !isMobile ? item.label : undefined}
                             >
                                 <Icon size={20} />
-                                {sidebarOpen && <span>{item.label}</span>}
+                                {(sidebarOpen || isMobile) && <span>{item.label}</span>}
                             </Link>
                         );
                     })}
@@ -128,18 +173,23 @@ export default function AdminLayout({
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-6 py-3 text-red-600 hover:bg-red-50 transition-colors mt-4 border-t"
-                        title={!sidebarOpen ? 'خروج' : undefined}
+                        title={!sidebarOpen && !isMobile ? 'خروج' : undefined}
                     >
                         <FaSignOutAlt size={20} />
-                        {sidebarOpen && <span>خروج</span>}
+                        {(sidebarOpen || isMobile) && <span>خروج</span>}
                     </button>
                 </nav>
 
                 {/* Back to Site */}
-                {sidebarOpen && (
-                    <div className="absolute bottom-0 w-full p-4 border-t">
+                {(sidebarOpen || isMobile) && (
+                    <div className="absolute bottom-0 w-full p-4 border-t bg-white">
                         <Link
                             href="/"
+                            onClick={() => {
+                                if (isMobile) {
+                                    setSidebarOpen(false);
+                                }
+                            }}
                             className="block text-center text-sm text-primary hover:underline"
                         >
                             بازگشت به سایت
@@ -150,23 +200,37 @@ export default function AdminLayout({
 
             {/* Main Content */}
             <main
-                className={`flex-1 ${sidebarOpen ? 'mr-64' : 'mr-20'
+                className={`flex-1 ${isMobile
+                    ? 'mr-0'
+                    : sidebarOpen
+                        ? 'mr-64'
+                        : 'mr-20'
                     } transition-all duration-300`}
             >
                 {/* Top Bar */}
                 <div className="bg-white shadow-sm border-b sticky top-0 z-20">
-                    <div className="px-8 py-4 flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-800">
+                    <div className="px-4 lg:px-8 py-3 lg:py-4 flex items-center justify-between gap-4">
+                        {/* Mobile Menu Button */}
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="lg:hidden text-gray-600 hover:text-primary"
+                        >
+                            <FaBars size={20} />
+                        </button>
+
+                        <h2 className="text-base lg:text-xl font-semibold text-gray-800 truncate">
                             {filteredMenuItems.find(item => item.href === pathname)?.label || 'پنل مدیریت'}
                         </h2>
-                        <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-600">{user.email}</span>
+                        <div className="flex items-center gap-2 lg:gap-4">
+                            <span className="text-xs lg:text-sm text-gray-600 hidden sm:block truncate max-w-[150px] lg:max-w-none">
+                                {user.email}
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-8">
+                <div className="p-4 lg:p-8">
                     {children}
                 </div>
             </main>

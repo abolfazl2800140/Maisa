@@ -14,9 +14,10 @@ import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers
 interface ProductCardProps {
   product: Product;
   viewMode?: 'grid' | 'list';
+  compact?: boolean;
 }
 
-export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
+export default function ProductCard({ product, viewMode = 'grid', compact = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { addToComparison, removeFromComparison, isInComparison, canAddMore } = useComparison();
@@ -40,6 +41,55 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  // Compact mode for carousels
+  if (compact) {
+    return (
+      <Link href={`/product/${product.slug}`} className="block bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden group border border-gray-100">
+        <div className="relative aspect-square overflow-hidden bg-gray-50">
+          <img
+            src={product.images[0] || '/images/placeholder.jpg'}
+            alt={product.name}
+            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+            }}
+          />
+          {discount > 0 && (
+            <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+              {discount}%
+            </span>
+          )}
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="text-white text-xs font-bold bg-gray-900 px-2 py-1 rounded">ناموجود</span>
+            </div>
+          )}
+        </div>
+        <div className="p-3">
+          <h3 className="text-sm font-medium text-gray-800 line-clamp-2 h-10 mb-2">
+            {product.name}
+          </h3>
+          {product.rating && (
+            <div className="flex items-center gap-1 mb-2">
+              <FaStar className="text-yellow-400 text-xs" />
+              <span className="text-xs text-gray-500">{toPersianNumbers(product.rating)}</span>
+            </div>
+          )}
+          <div className="space-y-1">
+            {product.originalPrice && (
+              <span className="text-xs text-gray-400 line-through block">
+                {formatPricePersian(product.originalPrice)}
+              </span>
+            )}
+            <span className="text-sm font-bold text-gray-800">
+              {formatPricePersian(product.price)} <span className="text-xs font-normal text-gray-500">تومان</span>
+            </span>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   if (viewMode === 'list') {
     return (
@@ -126,8 +176,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                       }
                     }}
                     className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inComparison
-                        ? 'bg-blue-500 text-white hover:bg-blue-600'
-                        : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
+                      ? 'bg-blue-500 text-white hover:bg-blue-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
                       }`}
                     title={inComparison ? 'حذف از مقایسه' : 'افزودن به مقایسه'}
                   >
@@ -140,8 +190,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                       inWishlist ? removeFromWishlist(product.id) : addToWishlist(product);
                     }}
                     className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inWishlist
-                        ? 'bg-red-500 text-white hover:bg-red-600'
-                        : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
                       }`}
                     title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
                   >
@@ -207,7 +257,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                 ویژه
               </span>
             )}
-            
+
             {/* Quick View Button */}
             <button
               onClick={(e) => {
@@ -266,8 +316,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   }
                 }}
                 className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inComparison
-                    ? 'bg-blue-500 text-white hover:bg-blue-600'
-                    : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
+                  ? 'bg-blue-500 text-white hover:bg-blue-600'
+                  : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
                   }`}
                 title={inComparison ? 'حذف از مقایسه' : 'افزودن به مقایسه'}
               >
@@ -280,8 +330,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
                   inWishlist ? removeFromWishlist(product.id) : addToWishlist(product);
                 }}
                 className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inWishlist
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
                   }`}
                 title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
               >

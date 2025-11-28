@@ -18,7 +18,7 @@ export default function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { totalItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
@@ -39,20 +39,19 @@ export default function Header() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        const searchInput = document.getElementById('search-input') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
-          setSearchFocused(true);
-        }
+        setSearchExpanded(true);
+        setTimeout(() => {
+          const searchInput = document.getElementById('search-input') as HTMLInputElement;
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }, 100);
       }
       // ESC to close search
       if (e.key === 'Escape') {
-        setSearchFocused(false);
+        setSearchExpanded(false);
         setMobileSearchOpen(false);
-        const searchInput = document.getElementById('search-input') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.blur();
-        }
+        setSearchQuery('');
       }
     };
 
@@ -78,7 +77,7 @@ export default function Header() {
       router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
       setMobileSearchOpen(false);
-      setSearchFocused(false);
+      setSearchExpanded(false);
     }
   };
 
@@ -87,6 +86,20 @@ export default function Header() {
     const searchInput = document.getElementById('search-input') as HTMLInputElement;
     if (searchInput) {
       searchInput.focus();
+    }
+  };
+
+  const toggleSearch = () => {
+    setSearchExpanded(!searchExpanded);
+    if (!searchExpanded) {
+      setTimeout(() => {
+        const searchInput = document.getElementById('search-input') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 300);
+    } else {
+      setSearchQuery('');
     }
   };
 
@@ -107,10 +120,10 @@ export default function Header() {
       <header className="bg-white shadow-md sticky top-0 z-50 backdrop-blur-sm bg-white/95">
         <div className="container mx-auto px-4">
           {/* Top Bar */}
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center justify-between py-3">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative w-16 h-16">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <div className="relative w-14 h-14">
                 <Image
                   src="/logo.svg"
                   alt="Maysa Logo"
@@ -121,48 +134,110 @@ export default function Header() {
               </div>
             </Link>
 
-            {/* Search Bar - Desktop */}
-            <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-8">
-              <div className="relative w-full group">
-                <input
-                  id="search-input"
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                  placeholder="جستجوی محصولات..."
-                  className="w-full px-4 py-2.5 pr-10 pl-20 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all hover:border-gray-400"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-all hover:scale-110"
-                >
-                  <FaSearch />
-                </button>
-
-                {/* Clear Button */}
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={clearSearch}
-                    className="absolute left-14 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-all hover:scale-110"
-                    aria-label="پاک کردن جستجو"
+            {/* Desktop Navigation - Moved to Top Bar */}
+            <nav className="hidden md:flex items-center flex-1 justify-center">
+              <ul className="flex items-center gap-5">
+                <li>
+                  <Link
+                    href="/"
+                    className={`transition-colors font-medium text-sm ${isActivePath('/') && pathname === '/' ? 'text-primary' : 'text-secondary hover:text-primary'}`}
                   >
-                    <FaTimes />
-                  </button>
-                )}
+                    صفحه اصلی
+                  </Link>
+                </li>
+                <li>
+                  <MegaMenu />
+                </li>
+                <li>
+                  <Link
+                    href="/shop"
+                    className={`transition-colors font-medium text-sm ${isActivePath('/shop') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+                  >
+                    فروشگاه
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/blog"
+                    className={`transition-colors font-medium text-sm ${isActivePath('/blog') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+                  >
+                    بلاگ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/about"
+                    className={`transition-colors font-medium text-sm ${isActivePath('/about') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+                  >
+                    درباره ما
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact"
+                    className={`transition-colors font-medium text-sm ${isActivePath('/contact') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+                  >
+                    تماس با ما
+                  </Link>
+                </li>
+              </ul>
+            </nav>
 
-                {/* Keyboard Shortcut Hint */}
-                {!searchFocused && !searchQuery && (
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-1 text-xs text-gray-400 pointer-events-none">
-                    <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl</kbd>
-                    <span>+</span>
-                    <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">K</kbd>
+            {/* Expandable Search Bar - Desktop */}
+            <div className={`hidden md:flex items-center transition-all duration-500 ease-out ${searchExpanded ? 'absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-10' : ''}`}>
+              {searchExpanded ? (
+                <form onSubmit={handleSearch} className="w-full animate-fade-in">
+                  <div className="relative w-full">
+                    <input
+                      id="search-input"
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="جستجوی محصولات..."
+                      className="w-full px-4 py-2.5 pr-12 pl-12 border-2 border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white shadow-lg"
+                      onBlur={(e) => {
+                        if (!e.relatedTarget?.closest('.search-container')) {
+                          setTimeout(() => {
+                            if (!searchQuery) setSearchExpanded(false);
+                          }, 200);
+                        }
+                      }}
+                    />
+                    <button
+                      type="submit"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-primary hover:scale-110 transition-transform"
+                    >
+                      <FaSearch className="text-lg" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchExpanded(false);
+                        setSearchQuery('');
+                      }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-all hover:scale-110"
+                      aria-label="بستن جستجو"
+                    >
+                      <FaTimes className="text-lg" />
+                    </button>
                   </div>
-                )}
-              </div>
-            </form>
+                </form>
+              ) : (
+                <button
+                  onClick={toggleSearch}
+                  className="search-container flex items-center gap-2 px-3 py-2 border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-gray-50 transition-all group"
+                  aria-label="جستجو"
+                >
+                  <FaSearch className="text-gray-400 group-hover:text-primary transition-colors" />
+                  <span className="text-gray-400 text-sm hidden lg:inline">جستجوی محصولات...</span>
+                  <div className="hidden lg:flex items-center gap-1 text-xs text-gray-400 mr-2">
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs font-mono">K</kbd>
+                    <span>+</span>
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl</kbd>
+                  </div>
+                </button>
+              )}
+            </div>
 
             {/* Icons */}
             <div className="flex items-center gap-3 md:gap-4">
@@ -276,9 +351,9 @@ export default function Header() {
                     )}
                   </>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => setAuthModalOpen(true)}
-                    className="hidden sm:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all font-semibold" 
+                    className="hidden sm:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all font-semibold"
                     aria-label="ورود"
                   >
                     <FaUser className="text-lg" />
@@ -366,54 +441,7 @@ export default function Header() {
             </div>
           )}
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:block border-t py-4">
-            <ul className="flex items-center justify-center gap-6">
-              <li>
-                <Link
-                  href="/"
-                  className={`transition-colors font-medium ${isActivePath('/') && pathname === '/' ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
-                >
-                  صفحه اصلی
-                </Link>
-              </li>
-              <li>
-                <MegaMenu />
-              </li>
-              <li>
-                <Link
-                  href="/shop"
-                  className={`transition-colors font-medium ${isActivePath('/shop') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
-                >
-                  فروشگاه
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className={`transition-colors font-medium ${isActivePath('/blog') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
-                >
-                  بلاگ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className={`transition-colors font-medium ${isActivePath('/about') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
-                >
-                  درباره ما
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className={`transition-colors font-medium ${isActivePath('/contact') ? 'text-primary border-b-2 border-primary pb-1' : 'text-secondary hover:text-primary'}`}
-                >
-                  تماس با ما
-                </Link>
-              </li>
-            </ul>
-          </nav>
+
         </div>
       </header>
 

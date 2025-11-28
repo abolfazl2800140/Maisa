@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { FaAward, FaUsers, FaShippingFast, FaHeart } from 'react-icons/fa';
+import { FaAward, FaUsers, FaShippingFast, FaHeart, FaTruck, FaShieldAlt, FaHeadset, FaUndo } from 'react-icons/fa';
 
 export const metadata = {
     title: 'درباره ما - فروشگاه مایسا',
@@ -70,6 +70,41 @@ export default function AboutPage() {
                         رضایت شما برای ما در اولویت است و تمام تلاش خود را می‌کنیم تا تجربه
                         خرید آنلاین لذت‌بخشی را برای شما فراهم کنیم.
                     </p>
+                </div>
+            </div>
+
+            {/* Features */}
+            <div className="bg-gray-50 rounded-2xl p-8 mb-16">
+                <h2 className="text-3xl font-bold mb-8 text-center text-secondary">چرا مایسا؟</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="flex flex-col items-center text-center p-4 bg-white rounded-xl shadow-sm">
+                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                            <FaTruck className="text-primary text-xl" />
+                        </div>
+                        <p className="font-semibold text-gray-800">ارسال سریع</p>
+                        <p className="text-sm text-gray-500">به سراسر کشور</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4 bg-white rounded-xl shadow-sm">
+                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                            <FaShieldAlt className="text-primary text-xl" />
+                        </div>
+                        <p className="font-semibold text-gray-800">ضمانت اصالت</p>
+                        <p className="text-sm text-gray-500">کالای ۱۰۰٪ اصل</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4 bg-white rounded-xl shadow-sm">
+                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                            <FaHeadset className="text-primary text-xl" />
+                        </div>
+                        <p className="font-semibold text-gray-800">پشتیبانی</p>
+                        <p className="text-sm text-gray-500">۲۴ ساعته</p>
+                    </div>
+                    <div className="flex flex-col items-center text-center p-4 bg-white rounded-xl shadow-sm">
+                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                            <FaUndo className="text-primary text-xl" />
+                        </div>
+                        <p className="font-semibold text-gray-800">بازگشت کالا</p>
+                        <p className="text-sm text-gray-500">۷ روز ضمانت</p>
+                    </div>
                 </div>
             </div>
 

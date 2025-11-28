@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdateUserDto, ChangeRoleDto } from './dto';
+import { UpdateUserDto, ChangeRoleDto, CreateAdminDto } from './dto';
 import { UserRole } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll() {
     return this.prisma.user.findMany({
@@ -120,5 +121,72 @@ export class UsersService {
         isActive: true,
       },
     });
+  }
+
+  async createAdmin(dto: CreateAdminDto) {
+    // بررسی وجود ایمیل
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('این ایمیل قبلاً ثبت شده است');
+    }
+
+    // بررسی وجود شماره تلفن
+    if (dto.phone) {
+      const existingPhone = await this.prisma.user.findUnique({
+        where: { phone: dto.phone },
+      });
+
+      if (existingPhone) {
+        throw new ConflictException('این شماره تلفن قبلاً ثبت شده است');
+      }
+    }
+
+    // هش کردن رمز عبور
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    // ایجاد کاربر جدید
+    const user = await this.prisma.user.create({
+      data: {
+        email: dto.email,
+        passwordHash: hashedPassword,
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        phone: dto.phone,
+        role: dto.role,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+      },
+    });
+
+    return user;
+  }
+
+  async deleteUser(id: string, currentUserId: string) {
+    // جلوگیری از حذف خودش
+    if (id === currentUserId) {
+      throw new ForbiddenException('نمی‌توانید حساب خود را حذف کنید');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('کاربر یافت نشد');
+    }
+
+    await this.prisma.user.delete({ where: { id } });
+
+    return { message: 'کاربر با موفقیت حذف شد' };
   }
 }
