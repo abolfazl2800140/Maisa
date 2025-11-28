@@ -47,7 +47,7 @@ export default function StickyAddToCart({ product }: StickyAddToCartProps) {
           <button
             onClick={handleAddToCart}
             disabled={!product.inStock || isAdding}
-            className="flex-1 bg-primary text-white py-3 px-6 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
+            className="flex-1 bg-accent text-white py-3 px-6 rounded-lg font-bold hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
           >
             {isAdding ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

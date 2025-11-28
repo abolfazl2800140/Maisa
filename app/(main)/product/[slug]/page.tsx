@@ -127,11 +127,10 @@ export default function ProductPage() {
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                      selectedImage === index
-                        ? 'border-primary shadow-lg scale-105'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === index
+                      ? 'border-primary shadow-lg scale-105'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     <img
                       src={image}
@@ -176,7 +175,7 @@ export default function ProductPage() {
                   <span className="text-2xl text-gray-400 line-through">
                     {formatPricePersian(product.originalPrice)} تومان
                   </span>
-                  <span className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-sale text-white px-3 py-1 rounded-full text-sm font-bold">
                     {toPersianNumbers(discount)}% تخفیف
                   </span>
                 </div>
@@ -226,7 +225,7 @@ export default function ProductPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={!product.inStock || isAdding}
-                className="flex-1 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-accent text-white py-3 rounded-lg font-bold hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isAdding ? (
                   <>
@@ -250,14 +249,14 @@ export default function ProductPage() {
               >
                 <FaHeart className={inWishlist ? 'text-white' : 'text-gray-600'} />
               </button>
-              <button 
+              <button
                 onClick={() => {
                   if (navigator.share) {
                     navigator.share({
                       title: product.name,
                       text: product.description,
                       url: window.location.href,
-                    }).catch(() => {});
+                    }).catch(() => { });
                   } else {
                     navigator.clipboard.writeText(window.location.href);
                     toast.success('لینک محصول کپی شد');

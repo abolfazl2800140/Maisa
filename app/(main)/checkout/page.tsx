@@ -231,7 +231,7 @@ export default function CheckoutPage() {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                  className="w-full bg-accent text-white py-3 rounded-lg font-bold hover:bg-accent-dark transition-colors"
                 >
                   ادامه به پرداخت
                 </button>
@@ -293,7 +293,7 @@ export default function CheckoutPage() {
                   <button
                     type="submit"
                     disabled={isProcessing}
-                    className="flex-1 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 bg-accent text-white py-3 rounded-lg font-bold hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
                       <>

@@ -207,7 +207,7 @@ export default function CartPage() {
 
                         <Link
                             href="/checkout"
-                            className="block w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary-dark transition-colors mb-3"
+                            className="block w-full bg-accent text-white text-center py-3 rounded-lg font-bold hover:bg-accent-dark transition-colors mb-3"
                         >
                             ادامه فرآیند خرید
                         </Link>
@@ -241,12 +241,12 @@ export default function CartPage() {
 
         // Get categories of items in cart
         const cartCategories = items.map(item => item.product.category);
-        
+
         // Find products from same categories that are not in cart
         const cartProductIds = items.map(item => item.product.id);
         const related = allProducts.filter(
-            product => 
-                cartCategories.includes(product.category) && 
+            product =>
+                cartCategories.includes(product.category) &&
                 !cartProductIds.includes(product.id) &&
                 product.inStock
         );

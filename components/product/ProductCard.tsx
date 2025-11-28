@@ -106,7 +106,7 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
                 }}
               />
               {discount > 0 && (
-                <span className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
+                <span className="absolute top-2 right-2 bg-sale text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
                   {discount}% تخفیف
                 </span>
               )}
@@ -200,7 +200,7 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
 
                   <button
                     onClick={handleAddToCart}
-                    className="bg-primary text-white px-6 py-2.5 rounded-full hover:bg-primary-dark hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center gap-2"
+                    className="bg-accent text-white px-6 py-2.5 rounded-full hover:bg-accent-dark hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center gap-2"
                     disabled={!product.inStock || isAdding}
                     title="افزودن به سبد خرید"
                   >
@@ -243,7 +243,7 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
               }}
             />
             {discount > 0 && (
-              <span className="absolute top-3 right-3 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 animate-pulse">
+              <span className="absolute top-3 right-3 bg-sale text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 animate-pulse">
                 {discount}% تخفیف
               </span>
             )}
@@ -340,7 +340,7 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
 
               <button
                 onClick={handleAddToCart}
-                className="bg-primary text-white p-2.5 rounded-full hover:bg-primary-dark hover:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                className="bg-accent text-white p-2.5 rounded-full hover:bg-accent-dark hover:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                 disabled={!product.inStock || isAdding}
                 title="افزودن به سبد خرید"
               >

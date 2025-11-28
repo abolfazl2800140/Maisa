@@ -10,13 +10,22 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#FF4444',
-          dark: '#CC0000',
-          light: '#FF6666',
+          DEFAULT: '#4F46E5',
+          dark: '#4338CA',
+          light: '#6366F1',
         },
         secondary: {
           DEFAULT: '#1a1a1a',
           light: '#333333',
+        },
+        accent: {
+          DEFAULT: '#F97316',
+          dark: '#EA580C',
+          light: '#FB923C',
+        },
+        sale: {
+          DEFAULT: '#EF4444',
+          dark: '#DC2626',
         },
       },
       fontFamily: {

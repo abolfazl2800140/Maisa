@@ -94,7 +94,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                     }}
                   />
                   {discount > 0 && (
-                    <span className="absolute top-4 right-4 bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
+                    <span className="absolute top-4 right-4 bg-sale text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
                       {discount}% تخفیف
                     </span>
                   )}
@@ -114,11 +114,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                          selectedImage === index
-                            ? 'border-primary ring-2 ring-primary/20'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
+                          ? 'border-primary ring-2 ring-primary/20'
+                          : 'border-gray-200 hover:border-gray-300'
+                          }`}
                       >
                         <img
                           src={image}
@@ -228,7 +227,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   <button
                     onClick={handleAddToCart}
                     disabled={!product.inStock || isAdding}
-                    className="flex-1 bg-primary text-white py-3 px-6 rounded-lg font-bold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 bg-accent text-white py-3 px-6 rounded-lg font-bold hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isAdding ? (
                       <>
@@ -244,11 +243,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   </button>
                   <button
                     onClick={handleWishlist}
-                    className={`w-12 h-12 rounded-lg transition-all flex items-center justify-center ${
-                      inWishlist
-                        ? 'bg-red-500 text-white hover:bg-red-600'
-                        : 'border border-gray-300 hover:bg-gray-100'
-                    }`}
+                    className={`w-12 h-12 rounded-lg transition-all flex items-center justify-center ${inWishlist
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'border border-gray-300 hover:bg-gray-100'
+                      }`}
                     title={
                       inWishlist
                         ? 'حذف از علاقه‌مندی‌ها'
