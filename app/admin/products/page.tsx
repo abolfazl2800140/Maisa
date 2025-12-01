@@ -42,20 +42,24 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
         try {
             const response = await adminApi.getProducts();
-            const mappedProducts: Product[] = (response.data || response).map((p: any) => ({
-                id: p.id,
-                name: p.name,
-                slug: p.slug,
-                sku: p.sku || '-',
-                basePrice: Number(p.basePrice),
-                finalPrice: Number(p.finalPrice) || Number(p.basePrice),
-                stockQuantity: p.variants?.[0]?.stockQuantity || 0,
-                category: p.category?.name || '-',
-                brand: p.brand?.name || '-',
-                image: p.images?.[0]?.imageUrl || '/images/placeholder.jpg',
-                isActive: p.isActive,
-                isFeatured: p.isFeatured,
-            }));
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+            const mappedProducts: Product[] = (response.data || response).map((p: any) => {
+                const imageId = p.images?.[0]?.id;
+                return {
+                    id: p.id,
+                    name: p.name,
+                    slug: p.slug,
+                    sku: p.sku || '-',
+                    basePrice: Number(p.basePrice),
+                    finalPrice: Number(p.finalPrice) || Number(p.basePrice),
+                    stockQuantity: p.variants?.[0]?.stockQuantity || 0,
+                    category: p.category?.name || '-',
+                    brand: p.brand?.name || '-',
+                    image: imageId ? `${API_URL}/upload/image/${imageId}` : '/images/placeholder.jpg',
+                    isActive: p.isActive,
+                    isFeatured: p.isFeatured,
+                };
+            });
             setProducts(mappedProducts);
         } catch (error: any) {
             console.error('خطا در دریافت محصولات:', error);

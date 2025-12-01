@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
-import { FaUser, FaLock, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaUser, FaLock, FaPhone } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { useAuth, UserRole } from '@/lib/context/AuthContext';
+import { useAuth } from '@/lib/context/AuthContext';
 import { loginSchema, registerSchema, loginInitialValues, registerInitialValues } from '@/lib/validations/auth';
 
 // کامپوننت نمایش خطا
@@ -49,7 +49,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
-  const [selectedRole, setSelectedRole] = useState<UserRole>('customer');
+
 
   // Redirect if already logged in
   useEffect(() => {
@@ -63,15 +63,9 @@ export default function LoginPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      login(values.email, values.password, 'کاربر مایسا', selectedRole);
+      login(values.phone, values.password, 'کاربر مایسا', 'customer');
       toast.success('با موفقیت وارد شدید', { icon: '👋' });
-
-      // Redirect based on role
-      if (selectedRole === 'admin' || selectedRole === 'super_admin') {
-        router.push('/admin');
-      } else {
-        router.push('/account');
-      }
+      router.push('/account');
     } catch (error: any) {
       toast.error(error.message || 'خطا در ورود');
       setSubmitting(false);
@@ -83,7 +77,7 @@ export default function LoginPage() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      login(values.email, values.password, `${values.firstName} ${values.lastName}`, 'customer');
+      login(values.phone, values.password, `${values.firstName} ${values.lastName}`, 'customer');
       toast.success('ثبت‌نام با موفقیت انجام شد', { icon: '🎉' });
       router.push('/account');
     } catch (error: any) {
@@ -125,14 +119,14 @@ export default function LoginPage() {
               {({ isSubmitting }) => (
                 <Form className="space-y-4">
                   <div>
-                    <label className="block font-semibold mb-2">ایمیل</label>
+                    <label className="block font-semibold mb-2">شماره تلفن</label>
                     <FormInputWithIcon
-                      name="email"
-                      type="email"
-                      placeholder="example@email.com"
-                      icon={FaEnvelope}
+                      name="phone"
+                      type="tel"
+                      placeholder="09123456789"
+                      icon={FaPhone}
                     />
-                    <FormError name="email" />
+                    <FormError name="phone" />
                   </div>
 
                   <div>
@@ -144,22 +138,6 @@ export default function LoginPage() {
                       icon={FaLock}
                     />
                     <FormError name="password" />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold mb-2">نقش (برای تست)</label>
-                    <select
-                      value={selectedRole}
-                      onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
-                    >
-                      <option value="customer">مشتری</option>
-                      <option value="admin">ادمین</option>
-                      <option value="super_admin">سوپر ادمین</option>
-                    </select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      این فیلد فقط برای تست است و در نسخه نهایی حذف می‌شود
-                    </p>
                   </div>
 
                   <div className="flex items-center justify-between text-sm">
@@ -217,17 +195,6 @@ export default function LoginPage() {
                       />
                       <FormError name="lastName" />
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold mb-2">ایمیل</label>
-                    <FormInputWithIcon
-                      name="email"
-                      type="email"
-                      placeholder="example@email.com"
-                      icon={FaEnvelope}
-                    />
-                    <FormError name="email" />
                   </div>
 
                   <div>

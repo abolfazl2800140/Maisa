@@ -35,6 +35,8 @@ interface ProductImage {
   displayOrder: number;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 // کامپوننت نمایش خطا
 const FormError = ({ name }: { name: string }) => (
   <ErrorMessage name={name}>
@@ -140,7 +142,7 @@ export default function NewProductPage() {
           stockQuantity: v.stockQuantity,
         })),
         images: productImages.map((img) => ({
-          imageUrl: img.url,
+          imageId: img.id,
           isPrimary: img.isPrimary,
           displayOrder: img.displayOrder,
         })),
@@ -230,10 +232,10 @@ export default function NewProductPage() {
     try {
       const result = await adminApi.uploadImages(validFiles);
       
-      // اضافه کردن URL های آپلود شده به لیست تصاویر
-      const newImages: ProductImage[] = result.urls.map((url, index) => ({
-        id: Date.now().toString() + index,
-        url: `${process.env.NEXT_PUBLIC_API_URL}${url}`,
+      // اضافه کردن تصاویر آپلود شده به لیست
+      const newImages: ProductImage[] = result.ids.map((id, index) => ({
+        id,
+        url: `${API_URL}/upload/image/${id}`,
         isPrimary: productImages.length === 0 && index === 0,
         displayOrder: productImages.length + index,
       }));

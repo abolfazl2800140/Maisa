@@ -7,59 +7,55 @@ async function main() {
   console.log('🌱 شروع Seed...');
 
   // ایجاد Super Admin
-  const superAdminPassword = await bcrypt.hash('Admin@123', 10);
+  const superAdminPassword = await bcrypt.hash('12345678', 10);
   const superAdmin = await prisma.user.upsert({
-    where: { email: 'admin@maysa.com' },
+    where: { phone: '09305987142' },
     update: {},
     create: {
-      email: 'admin@maysa.com',
+      phone: '09305987142',
       passwordHash: superAdminPassword,
-      firstName: 'مدیر',
-      lastName: 'سیستم',
-      phone: '09123456789',
+      firstName: 'سوپر',
+      lastName: 'ادمین',
       role: 'super_admin',
-      emailVerified: true,
       phoneVerified: true,
     },
   });
 
-  console.log('✅ Super Admin ایجاد شد:', superAdmin.email);
+  console.log('✅ Super Admin ایجاد شد:', superAdmin.phone);
 
   // ایجاد Admin
-  const adminPassword = await bcrypt.hash('Admin@123', 10);
+  const adminPassword = await bcrypt.hash('12345678', 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'support@maysa.com' },
+    where: { phone: '09936630832' },
     update: {},
     create: {
-      email: 'support@maysa.com',
+      phone: '09936630832',
       passwordHash: adminPassword,
-      firstName: 'پشتیبانی',
+      firstName: 'ادمین',
       lastName: 'مایسا',
-      phone: '09123456788',
       role: 'admin',
-      emailVerified: true,
+      phoneVerified: true,
     },
   });
 
-  console.log('✅ Admin ایجاد شد:', admin.email);
+  console.log('✅ Admin ایجاد شد:', admin.phone);
 
   // ایجاد Customer نمونه
-  const customerPassword = await bcrypt.hash('User@123', 10);
+  const customerPassword = await bcrypt.hash('12345678', 10);
   const customer = await prisma.user.upsert({
-    where: { email: 'user@example.com' },
+    where: { phone: '09123456789' },
     update: {},
     create: {
-      email: 'user@example.com',
+      phone: '09123456789',
       passwordHash: customerPassword,
-      firstName: 'علی',
-      lastName: 'احمدی',
-      phone: '09123456787',
+      firstName: 'کاربر',
+      lastName: 'عادی',
       role: 'customer',
       loyaltyPoints: 100,
     },
   });
 
-  console.log('✅ Customer نمونه ایجاد شد:', customer.email);
+  console.log('✅ Customer نمونه ایجاد شد:', customer.phone);
 
   // ایجاد برندها
   const brands = await Promise.all([
@@ -263,9 +259,9 @@ async function main() {
 
   console.log('\n🎉 Seed با موفقیت انجام شد!');
   console.log('\n📝 اطلاعات ورود:');
-  console.log('Super Admin: admin@maysa.com / Admin@123');
-  console.log('Admin: support@maysa.com / Admin@123');
-  console.log('Customer: user@example.com / User@123');
+  console.log('Super Admin: 09305987142 / 12345678');
+  console.log('Admin: 09936630832 / 12345678');
+  console.log('Customer: 09123456789 / 12345678');
 }
 
 main()

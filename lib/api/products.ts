@@ -21,7 +21,7 @@ interface BackendProduct {
   };
   images: Array<{
     id: string;
-    imageUrl: string;
+    mimeType: string;
     altText?: string;
     isPrimary: boolean;
   }>;
@@ -34,6 +34,8 @@ interface BackendProduct {
     stock: number;
   }>;
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface ProductsResponse {
   data: BackendProduct[];
@@ -67,7 +69,7 @@ function mapBackendProduct(backendProduct: BackendProduct): Product {
     images: backendProduct.images && backendProduct.images.length > 0
       ? backendProduct.images
         .sort((a, b) => (a.isPrimary ? -1 : b.isPrimary ? 1 : 0))
-        .map(img => img.imageUrl)
+        .map(img => `${API_URL}/upload/image/${img.id}`)
       : ['/images/placeholder.jpg'],
     inStock: totalStock > 0 || true, // Default to true if no variants
     featured: backendProduct.isFeatured,

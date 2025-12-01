@@ -8,7 +8,7 @@ export type UserRole = 'customer' | 'admin' | 'super_admin';
 interface User {
     id: string;
     name: string;
-    email: string;
+    phone: string;
     role: UserRole;
 }
 
@@ -18,7 +18,7 @@ interface AuthContextType {
     isAdmin: boolean;
     isSuperAdmin: boolean;
     loading: boolean;
-    login: (email: string, password: string, name?: string, role?: UserRole) => Promise<void>;
+    login: (phone: string, password: string, name?: string, role?: UserRole) => Promise<void>;
     logout: () => void;
 }
 
@@ -43,8 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 const response = await apiClient.get<any>('/auth/me', token);
                 const userData: User = {
                     id: response.id,
-                    name: `${response.firstName || ''} ${response.lastName || ''}`.trim() || response.email,
-                    email: response.email,
+                    name: `${response.firstName || ''} ${response.lastName || ''}`.trim() || response.phone,
+                    phone: response.phone,
                     role: response.role,
                 };
                 setUser(userData);
@@ -57,17 +57,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const login = async (email: string, password: string, name?: string, role: UserRole = 'customer') => {
+    const login = async (phone: string, password: string, name?: string, role: UserRole = 'customer') => {
         try {
             // لاگین با API واقعی
-            const response = await apiClient.post<any>('/auth/login', { email, password });
+            const response = await apiClient.post<any>('/auth/login', { phone, password });
             const token = response.token || response.access_token;
             setAuthToken(token);
             
             const userData: User = {
                 id: response.user.id,
-                name: `${response.user.firstName || ''} ${response.user.lastName || ''}`.trim() || response.user.email,
-                email: response.user.email,
+                name: `${response.user.firstName || ''} ${response.user.lastName || ''}`.trim() || response.user.phone,
+                phone: response.user.phone,
                 role: response.user.role,
             };
             setUser(userData);

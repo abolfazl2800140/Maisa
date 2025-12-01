@@ -24,20 +24,11 @@ export class ProductsService {
       slug = `${slug}-${Date.now().toString().slice(-6)}`;
     }
 
+    // ایجاد محصول
     const product = await this.prisma.product.create({
       data: {
         ...productData,
         slug,
-        images: images
-          ? {
-              create: images.map((img, index) => ({
-                imageUrl: img.imageUrl,
-                altText: img.altText,
-                displayOrder: img.displayOrder ?? index,
-                isPrimary: img.isPrimary ?? index === 0,
-              })),
-            }
-          : undefined,
         variants: variants
           ? {
               create: variants.map((v, index) => ({
@@ -47,15 +38,43 @@ export class ProductsService {
             }
           : undefined,
       },
+    });
+
+    // اتصال تصاویر آپلود شده به محصول
+    if (images && images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        await this.prisma.productImage.update({
+          where: { id: img.imageId },
+          data: {
+            productId: product.id,
+            altText: img.altText,
+            displayOrder: img.displayOrder ?? i,
+            isPrimary: img.isPrimary ?? i === 0,
+          },
+        });
+      }
+    }
+
+    // برگرداندن محصول با تمام اطلاعات
+    return this.prisma.product.findUnique({
+      where: { id: product.id },
       include: {
         category: true,
         brand: true,
-        images: true,
+        images: {
+          select: {
+            id: true,
+            mimeType: true,
+            fileName: true,
+            altText: true,
+            displayOrder: true,
+            isPrimary: true,
+          },
+        },
         variants: true,
       },
     });
-
-    return product;
   }
 
   async findAll(query: ProductQueryDto) {
@@ -105,7 +124,11 @@ export class ProductsService {
         include: {
           category: { select: { id: true, name: true, slug: true } },
           brand: { select: { id: true, name: true, slug: true } },
-          images: { orderBy: { displayOrder: 'asc' }, take: 1 },
+          images: { 
+            orderBy: { displayOrder: 'asc' }, 
+            take: 1,
+            select: { id: true, mimeType: true, isPrimary: true },
+          },
         },
       }),
       this.prisma.product.count({ where }),
@@ -128,7 +151,10 @@ export class ProductsService {
       include: {
         category: true,
         brand: true,
-        images: { orderBy: { displayOrder: 'asc' } },
+        images: { 
+          orderBy: { displayOrder: 'asc' },
+          select: { id: true, mimeType: true, fileName: true, altText: true, displayOrder: true, isPrimary: true },
+        },
         variants: { where: { isActive: true } },
         reviews: {
           where: { isApproved: true },
@@ -162,7 +188,10 @@ export class ProductsService {
       include: {
         category: true,
         brand: true,
-        images: { orderBy: { displayOrder: 'asc' } },
+        images: { 
+          orderBy: { displayOrder: 'asc' },
+          select: { id: true, mimeType: true, fileName: true, altText: true, displayOrder: true, isPrimary: true },
+        },
         variants: { where: { isActive: true } },
         reviews: {
           where: { isApproved: true },

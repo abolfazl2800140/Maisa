@@ -370,14 +370,14 @@ export const adminApi = {
         return response.json();
     },
 
-    async uploadImages(files: File[]): Promise<{ urls: string[] }> {
+    async uploadImages(files: File[]): Promise<{ ids: string[]; urls: string[] }> {
         const token = getAuthToken();
         const formData = new FormData();
         files.forEach((file) => {
             formData.append('files', file);
         });
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/upload/images`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,

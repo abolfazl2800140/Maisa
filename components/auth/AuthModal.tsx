@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { FaUser, FaLock, FaEnvelope, FaPhone, FaTimes } from 'react-icons/fa';
+import { FaUser, FaLock, FaPhone, FaTimes } from 'react-icons/fa';
 import toast from 'react-hot-toast';
-import { useAuth, UserRole } from '@/lib/context/AuthContext';
+import { useAuth } from '@/lib/context/AuthContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -14,12 +14,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
+    phone: '',
     password: '',
     name: '',
-    phone: '',
     confirmPassword: '',
-    role: 'customer' as UserRole,
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -28,13 +26,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setIsLoading(true);
 
     if (isLogin) {
-      if (!formData.email || !formData.password) {
+      if (!formData.phone || !formData.password) {
         toast.error('لطفاً تمام فیلدها را پر کنید');
         setIsLoading(false);
         return;
       }
     } else {
-      if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
+      if (!formData.name || !formData.phone || !formData.password || !formData.confirmPassword) {
         toast.error('لطفاً تمام فیلدها را پر کنید');
         setIsLoading(false);
         return;
@@ -44,8 +42,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setIsLoading(false);
         return;
       }
-      if (formData.password.length < 6) {
-        toast.error('رمز عبور باید حداقل 6 کاراکتر باشد');
+      if (formData.password.length < 8) {
+        toast.error('رمز عبور باید حداقل 8 کاراکتر باشد');
         setIsLoading(false);
         return;
       }
@@ -53,11 +51,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
     try {
       if (isLogin) {
-        await login(formData.email, formData.password);
+        await login(formData.phone, formData.password);
         toast.success('با موفقیت وارد شدید', { icon: '👋' });
       } else {
         // TODO: ثبت‌نام با API
-        await login(formData.email, formData.password, formData.name, 'customer');
+        await login(formData.phone, formData.password, formData.name, 'customer');
         toast.success('ثبت‌نام با موفقیت انجام شد', { icon: '🎉' });
       }
       onClose();
@@ -71,12 +69,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const resetForm = () => {
     setFormData({
-      email: '',
+      phone: '',
       password: '',
       name: '',
-      phone: '',
       confirmPassword: '',
-      role: 'customer',
     });
   };
 
@@ -121,34 +117,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             )}
 
             <div>
-              <label className="block font-semibold mb-2 text-sm">ایمیل</label>
+              <label className="block font-semibold mb-2 text-sm">شماره تلفن</label>
               <div className="relative">
                 <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 pr-10 border border-gray-200 rounded-xl focus:outline-none focus:border-primary"
-                  placeholder="example@email.com"
+                  placeholder="09123456789"
                 />
-                <FaEnvelope className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <FaPhone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
-
-            {!isLogin && (
-              <div>
-                <label className="block font-semibold mb-2 text-sm">شماره تلفن</label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 pr-10 border border-gray-200 rounded-xl focus:outline-none focus:border-primary"
-                    placeholder="09123456789"
-                  />
-                  <FaPhone className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                </div>
-              </div>
-            )}
 
             <div>
               <label className="block font-semibold mb-2 text-sm">رمز عبور</label>
@@ -163,21 +143,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <FaLock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
-
-            {isLogin && (
-              <div>
-                <label className="block font-semibold mb-2 text-sm">نقش (برای تست)</label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-primary"
-                >
-                  <option value="customer">مشتری</option>
-                  <option value="admin">ادمین</option>
-                  <option value="super_admin">سوپر ادمین</option>
-                </select>
-              </div>
-            )}
 
             {!isLogin && (
               <div>

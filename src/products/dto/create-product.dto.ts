@@ -3,9 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 class ProductImageDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'ID تصویر آپلود شده' })
   @IsString()
-  imageUrl: string;
+  imageId: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

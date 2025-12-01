@@ -23,16 +23,18 @@ export default function EmptyState({
       <div className="max-w-md w-full text-center">
         {icon && (
           <div className="mb-6 flex justify-center">
-            {icon}
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center">
+              {icon}
+            </div>
           </div>
         )}
         
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
           {title}
         </h2>
         
         {description && (
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-500 mb-6">
             {description}
           </p>
         )}
@@ -42,14 +44,14 @@ export default function EmptyState({
             {actionHref ? (
               <Link
                 href={actionHref}
-                className="inline-block px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                className="h-12 px-6 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center"
               >
                 {actionLabel}
               </Link>
             ) : (
               <button
                 onClick={onAction}
-                className="px-8 py-3 bg-primary text-white rounded-lg font-bold hover:bg-primary-dark transition-colors"
+                className="h-12 px-6 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors"
               >
                 {actionLabel}
               </button>

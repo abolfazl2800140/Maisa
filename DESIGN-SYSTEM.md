@@ -1,91 +1,105 @@
 # Design System - فروشگاه مایسا 🎨
 
+## 📋 خلاصه سریع
+
+| عنصر | مقدار |
+|------|-------|
+| آیکون‌ها | Lucide (outline, w-4 h-4 یا w-5 h-5) |
+| Border Radius | rounded-xl, rounded-2xl |
+| Spacing | gap-2, gap-3, p-3, p-4, px-4 |
+| Typography | text-sm, text-xs, font-medium |
+| States | hover:bg-gray-50, hover:text-primary |
+| Badges | text-[10px], rounded-full |
+| Buttons | h-10, h-12, rounded-xl |
+
+---
+
 ## 🎨 رنگ‌ها (Colors)
 
 ### Primary Colors
 ```css
 primary: #FF4444        /* قرمز اصلی */
-primary-dark: #CC0000   /* قرمز تیره */
-primary-light: #FF6666  /* قرمز روشن */
+primary/90: hover state
+primary/10: background subtle
 ```
 
-### Secondary Colors
+### Gray Scale
 ```css
-secondary: #1a1a1a      /* مشکی */
-secondary-light: #333333 /* خاکستری تیره */
-```
-
-### Neutral Colors
-```css
-white: #FFFFFF
-gray-50: #F9FAFB
-gray-100: #F3F4F6
-gray-200: #E5E7EB
-gray-300: #D1D5DB
-gray-400: #9CA3AF
-gray-500: #6B7280
-gray-600: #4B5563
-gray-700: #374151
-gray-800: #1F2937
-gray-900: #111827
-black: #000000
+gray-50: #F9FAFB   /* پس‌زمینه خیلی روشن */
+gray-100: #F3F4F6  /* پس‌زمینه روشن، hover */
+gray-200: #E5E7EB  /* border */
+gray-300: #D1D5DB  /* border تیره‌تر */
+gray-400: #9CA3AF  /* متن کم‌رنگ، آیکون غیرفعال */
+gray-500: #6B7280  /* متن ثانویه */
+gray-600: #4B5563  /* متن معمولی */
+gray-700: #374151  /* متن تیره */
+gray-900: #111827  /* متن اصلی، دکمه‌ها */
 ```
 
 ### Status Colors
 ```css
-success: #10B981   /* سبز */
-error: #EF4444     /* قرمز */
-warning: #F59E0B   /* نارنجی */
-info: #3B82F6      /* آبی */
+green-500: #10B981   /* موفقیت، موجود */
+green-50: پس‌زمینه موفقیت
+red-500: #EF4444     /* خطا، تخفیف */
+red-50: پس‌زمینه خطا
+blue-500: #3B82F6    /* اطلاعات */
+blue-50: پس‌زمینه اطلاعات
+yellow-400: #FBBF24  /* ستاره، امتیاز */
 ```
 
 ---
 
-## 📝 تایپوگرافی (Typography)
+## 🔤 تایپوگرافی (Typography)
 
 ### Font Family
 ```css
 font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
 ```
 
-### Font Sizes
+### Font Sizes (استفاده اصلی)
 ```css
-text-xs: 0.75rem    /* 12px */
-text-sm: 0.875rem   /* 14px */
-text-base: 1rem     /* 16px */
-text-lg: 1.125rem   /* 18px */
-text-xl: 1.25rem    /* 20px */
-text-2xl: 1.5rem    /* 24px */
-text-3xl: 1.875rem  /* 30px */
-text-4xl: 2.25rem   /* 36px */
-text-5xl: 3rem      /* 48px */
-text-6xl: 3.75rem   /* 60px */
+text-xs: 0.75rem    /* 12px - بج‌ها، متن کمکی */
+text-sm: 0.875rem   /* 14px - متن اصلی، دکمه‌ها */
+text-base: 1rem     /* 16px - متن بزرگ‌تر */
+text-lg: 1.125rem   /* 18px - عناوین کوچک */
+text-xl: 1.25rem    /* 20px - عناوین صفحه */
+text-2xl: 1.5rem    /* 24px - عناوین بزرگ */
 ```
 
 ### Font Weights
 ```css
-font-normal: 400
-font-semibold: 600
-font-bold: 700
+font-medium: 500    /* متن معمولی مهم */
+font-semibold: 600  /* عناوین کوچک */
+font-bold: 700      /* عناوین اصلی */
 ```
 
 ---
 
 ## 🔘 دکمه‌ها (Buttons)
 
-### Primary Button
+### Primary Button (Dark)
 ```tsx
-className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-primary-dark hover:scale-105 transition-all duration-200 shadow-lg"
+className="h-12 px-6 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 transition-colors"
+```
+
+### Primary Button (Color)
+```tsx
+className="h-12 px-6 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors"
 ```
 
 ### Secondary Button
 ```tsx
-className="border border-gray-300 text-secondary px-6 py-2 rounded-lg font-bold hover:bg-gray-50 transition-colors"
+className="h-10 px-4 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
 ```
 
 ### Icon Button
 ```tsx
-className="bg-primary text-white p-2.5 rounded-full hover:bg-primary-dark hover:scale-110 transition-all duration-200 shadow-md"
+className="w-9 h-9 bg-gray-100 rounded-xl flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors"
+```
+
+### Danger Button
+```tsx
+className="h-10 px-4 text-sm font-medium text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors"
 ```
 
 ### Disabled State
@@ -99,17 +113,22 @@ disabled:opacity-50 disabled:cursor-not-allowed
 
 ### Product Card
 ```tsx
-className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-transparent hover:border-primary/20"
+className="bg-white rounded-2xl border border-gray-100 overflow-hidden group"
 ```
 
 ### Content Card
 ```tsx
-className="bg-white rounded-lg shadow-md p-6"
+className="bg-white rounded-2xl border border-gray-100 p-4 lg:p-6"
 ```
 
-### Featured Card
+### Info Box (Success)
 ```tsx
-className="bg-white rounded-lg shadow-lg p-8 border-2 border-primary"
+className="bg-green-50 border border-green-100 p-4 rounded-xl"
+```
+
+### Info Box (Info)
+```tsx
+className="bg-blue-50 border border-blue-100 p-4 rounded-xl"
 ```
 
 ---
@@ -118,23 +137,25 @@ className="bg-white rounded-lg shadow-lg p-8 border-2 border-primary"
 
 ### Input Field
 ```tsx
-className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+className="w-full h-10 px-4 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-primary transition-all"
 ```
 
 ### Textarea
 ```tsx
-className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-rows={4}
+className="w-full px-4 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-primary transition-all h-28 resize-none"
 ```
 
-### Select
+### Input with Icon
 ```tsx
-className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary"
+<div className="relative">
+  <input className="w-full h-10 pl-10 pr-4 text-sm bg-gray-50 border border-gray-200 rounded-xl ..." />
+  <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+</div>
 ```
 
 ### Label
 ```tsx
-className="block text-sm font-semibold mb-2"
+className="text-sm font-medium text-gray-700 mb-2 block"
 ```
 
 ---
@@ -143,17 +164,22 @@ className="block text-sm font-semibold mb-2"
 
 ### Discount Badge
 ```tsx
-className="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg"
+className="bg-red-500 text-white text-[10px] font-medium px-2 py-1 rounded-full"
 ```
 
 ### Category Badge
 ```tsx
-className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold"
+className="bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1.5 rounded-lg"
 ```
 
-### Status Badge
+### Status Badge (Success)
 ```tsx
-className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold"
+className="inline-flex items-center gap-1.5 text-sm text-green-600 font-medium"
+```
+
+### Count Badge
+```tsx
+className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] font-medium rounded-full flex items-center justify-center"
 ```
 
 ---
@@ -162,118 +188,89 @@ className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-semibold"
 
 ### Text Link
 ```tsx
-className="text-primary hover:underline transition-colors"
+className="text-primary hover:text-primary/80 transition-colors"
 ```
 
-### Button Link
+### Card Link
 ```tsx
-className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all"
+className="text-sm font-medium text-gray-900 hover:text-primary transition-colors"
 ```
 
-### Nav Link
+### Breadcrumb Link
 ```tsx
-className="text-secondary hover:text-primary transition-colors font-medium"
+className="text-sm text-gray-500 hover:text-primary transition-colors"
 ```
 
 ---
 
 ## 🖼️ تصاویر (Images)
 
-### Product Image
+### Product Image Container
 ```tsx
-<Image
-  src={src}
-  alt={alt}
-  fill
-  className="object-cover group-hover:scale-105 transition-transform duration-500"
-/>
+className="relative aspect-square bg-gray-50 rounded-xl overflow-hidden"
 ```
 
-### Hero Image
+### Image Hover Effect
 ```tsx
-<Image
-  src={src}
-  alt={alt}
-  fill
-  className="object-cover brightness-75"
-  priority
-/>
+className="... group-hover:scale-105 transition-transform duration-300"
+```
+
+### Thumbnail
+```tsx
+className="w-16 h-16 rounded-xl overflow-hidden border-2 border-gray-200 hover:border-primary transition-colors"
 ```
 
 ---
 
 ## 📏 فاصله‌گذاری (Spacing)
 
-### Padding
+### Padding (استفاده اصلی)
 ```css
-p-2: 0.5rem   /* 8px */
-p-4: 1rem     /* 16px */
-p-6: 1.5rem   /* 24px */
-p-8: 2rem     /* 32px */
-p-12: 3rem    /* 48px */
+p-3: 0.75rem  /* 12px - کارت‌های کوچک */
+p-4: 1rem     /* 16px - کارت‌های معمولی */
+p-6: 1.5rem   /* 24px - بخش‌های بزرگ */
 ```
 
-### Margin
+### Gap (استفاده اصلی)
 ```css
-m-2: 0.5rem   /* 8px */
-m-4: 1rem     /* 16px */
-m-6: 1.5rem   /* 24px */
-m-8: 2rem     /* 32px */
-m-12: 3rem    /* 48px */
-```
-
-### Gap
-```css
-gap-2: 0.5rem  /* 8px */
-gap-4: 1rem    /* 16px */
-gap-6: 1.5rem  /* 24px */
-gap-8: 2rem    /* 32px */
+gap-1: 0.25rem /* 4px - آیتم‌های خیلی نزدیک */
+gap-2: 0.5rem  /* 8px - آیتم‌های نزدیک */
+gap-3: 0.75rem /* 12px - آیتم‌های معمولی */
+gap-4: 1rem    /* 16px - بخش‌ها */
+gap-6: 1.5rem  /* 24px - بخش‌های بزرگ */
 ```
 
 ---
 
-## 🎭 سایه‌ها (Shadows)
+## 🎭 Border Radius
 
-### Shadow Levels
+### استفاده اصلی
 ```css
-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05)
-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1)
-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1)
-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1)
-shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25)
+rounded-lg: 0.5rem    /* 8px - دکمه‌های کوچک */
+rounded-xl: 0.75rem   /* 12px - دکمه‌ها، input‌ها */
+rounded-2xl: 1rem     /* 16px - کارت‌ها */
+rounded-full: 9999px  /* بج‌ها، آواتار */
 ```
 
 ---
 
 ## 🔄 انیمیشن‌ها (Animations)
 
-### Transition Duration
+### Transition
 ```css
-duration-200: 200ms  /* سریع */
-duration-300: 300ms  /* متوسط */
-duration-500: 500ms  /* کند */
+transition-colors   /* تغییر رنگ */
+transition-all      /* همه تغییرات */
+duration-300        /* 300ms */
 ```
 
 ### Hover Scale
 ```css
-hover:scale-105  /* کارت‌ها */
-hover:scale-110  /* دکمه‌ها و آیکون‌ها */
+group-hover:scale-105  /* تصاویر */
 ```
 
-### Fade In
-```css
-animate-fade-in
-```
-
-### Bounce
-```css
-animate-bounce
-```
-
-### Pulse
-```css
-animate-pulse
+### Loading Spinner
+```tsx
+className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
 ```
 
 ---
@@ -285,83 +282,60 @@ sm: 640px   /* موبایل بزرگ */
 md: 768px   /* تبلت */
 lg: 1024px  /* لپ‌تاپ */
 xl: 1280px  /* دسکتاپ */
-2xl: 1536px /* دسکتاپ بزرگ */
+```
+
+### Grid Patterns
+```tsx
+// Product Grid
+className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+
+// Two Column Layout
+className="grid grid-cols-1 lg:grid-cols-2 gap-6"
 ```
 
 ---
 
-## ♿ Accessibility
+## 🎯 آیکون‌ها (Icons)
 
-### Focus States
+### Library
+استفاده از **Lucide React** (outline style)
+
+### Sizes
 ```css
-focus:outline-none
-focus:ring-2
-focus:ring-primary/20
-focus-visible:outline-2
-focus-visible:outline-primary
+w-4 h-4   /* آیکون‌های کوچک، داخل دکمه */
+w-5 h-5   /* آیکون‌های معمولی */
+w-10 h-10 /* آیکون‌های بزرگ، empty state */
 ```
 
-### ARIA Labels
+### Common Icons
 ```tsx
-aria-label="توضیح"
-```
-
-### Alt Text
-```tsx
-alt="توضیح کامل تصویر"
+import { 
+  ShoppingCart, Heart, Star, Search, 
+  Plus, Minus, Trash2, X, Check,
+  ChevronLeft, ChevronRight, ChevronDown,
+  Home, User, Package, Truck
+} from 'lucide-react';
 ```
 
 ---
 
-## 🎯 Best Practices
-
-### 1. Consistency
-- همیشه از رنگ‌های تعریف شده استفاده کنید
-- از spacing system پیروی کنید
-- از component patterns استفاده کنید
-
-### 2. Performance
-- از Next.js Image برای تصاویر
-- Lazy loading برای محتوای زیر fold
-- Optimize animations
-
-### 3. Accessibility
-- همیشه alt text برای تصاویر
-- ARIA labels برای interactive elements
-- Keyboard navigation support
-
-### 4. Responsive
-- Mobile-first approach
-- Test در تمام breakpoints
-- Touch-friendly buttons (min 44x44px)
-
----
-
-## 📋 Component Checklist
+## ✅ Component Checklist
 
 هر component باید:
-- ✅ Responsive باشد
-- ✅ Accessible باشد
-- ✅ Loading state داشته باشد
-- ✅ Error state داشته باشد
-- ✅ Hover/Focus states داشته باشد
-- ✅ از Design System پیروی کند
+- ✅ از Lucide icons استفاده کند
+- ✅ rounded-xl یا rounded-2xl داشته باشد
+- ✅ border border-gray-100 برای کارت‌ها
+- ✅ text-sm برای متن اصلی
+- ✅ h-10 یا h-12 برای دکمه‌ها
+- ✅ hover:bg-gray-50 برای hover states
+- ✅ transition-colors برای انیمیشن
 
 ---
 
 ## 🔧 Tools
 
 - **Tailwind CSS**: Utility-first CSS
-- **React Icons**: Icon library
+- **Lucide React**: Icon library
 - **Next.js Image**: Image optimization
 - **React Hot Toast**: Notifications
 - **Swiper**: Carousels
-
----
-
-## 📚 Resources
-
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [Next.js Docs](https://nextjs.org/docs)
-- [React Icons](https://react-icons.github.io/react-icons/)
-- [Vazirmatn Font](https://github.com/rastikerdar/vazirmatn)

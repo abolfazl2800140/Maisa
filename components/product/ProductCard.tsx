@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Product } from '@/types';
-import { FaStar, FaShoppingCart, FaHeart, FaEye, FaExchangeAlt } from 'react-icons/fa';
+import { ShoppingBag, Heart, Eye, GitCompare, Star } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import { useComparison } from '@/lib/context/ComparisonContext';
@@ -29,15 +29,45 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsAdding(true);
     addToCart(product);
-
-    toast.success(`${product.name} به سبد خرید اضافه شد`, {
-      icon: '🛒',
-    });
-
+    toast.success(`${product.name} به سبد خرید اضافه شد`);
     setTimeout(() => setIsAdding(false), 500);
   };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inWishlist) {
+      removeFromWishlist(product.id);
+      toast.success('از علاقه‌مندی‌ها حذف شد');
+    } else {
+      addToWishlist(product);
+      toast.success('به علاقه‌مندی‌ها اضافه شد');
+    }
+  };
+
+  const handleComparison = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (inComparison) {
+      removeFromComparison(product.id);
+      toast.success('از مقایسه حذف شد');
+    } else if (canAddMore) {
+      addToComparison(product);
+      toast.success('به مقایسه اضافه شد');
+    } else {
+      toast.error('حداکثر ۴ محصول قابل مقایسه است');
+    }
+  };
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuickViewOpen(true);
+  };
+
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
@@ -45,95 +75,91 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
   // Compact mode for carousels
   if (compact) {
     return (
-      <Link href={`/product/${product.slug}`} className="block bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden group border border-gray-100">
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
-          <img
-            src={product.images[0] || '/images/placeholder.jpg'}
-            alt={product.name}
-            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
-            }}
-          />
-          {discount > 0 && (
-            <span className="absolute top-2 right-2 bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-              {discount}%
-            </span>
-          )}
-          {!product.inStock && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="text-white text-xs font-bold bg-gray-900 px-2 py-1 rounded">ناموجود</span>
-            </div>
-          )}
-        </div>
-        <div className="p-3">
-          <h3 className="text-sm font-medium text-gray-800 line-clamp-2 h-10 mb-2">
-            {product.name}
-          </h3>
-          {product.rating && (
-            <div className="flex items-center gap-1 mb-2">
-              <FaStar className="text-yellow-400 text-xs" />
-              <span className="text-xs text-gray-500">{toPersianNumbers(product.rating)}</span>
-            </div>
-          )}
-          <div className="space-y-1">
-            {product.originalPrice && (
-              <span className="text-xs text-gray-400 line-through block">
-                {formatPricePersian(product.originalPrice)}
+      <Link href={`/product/${product.slug}`} className="group block">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-200">
+          <div className="relative aspect-square bg-gray-50">
+            <img
+              src={product.images[0] || '/images/placeholder.jpg'}
+              alt={product.name}
+              className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+              }}
+            />
+            {discount > 0 && (
+              <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                {toPersianNumbers(discount)}%
               </span>
             )}
-            <span className="text-sm font-bold text-gray-800">
-              {formatPricePersian(product.price)} <span className="text-xs font-normal text-gray-500">تومان</span>
-            </span>
+            {!product.inStock && (
+              <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                <span className="text-gray-500 text-sm font-medium">ناموجود</span>
+              </div>
+            )}
+          </div>
+          <div className="p-4">
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-2">
+              {product.name}
+            </h3>
+            {product.rating && (
+              <div className="flex items-center gap-1 mb-2">
+                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="text-xs text-gray-500">{toPersianNumbers(product.rating)}</span>
+              </div>
+            )}
+            <div className="space-y-1">
+              {product.originalPrice && (
+                <span className="text-xs text-gray-400 line-through block">
+                  {formatPricePersian(product.originalPrice)}
+                </span>
+              )}
+              <span className="text-sm font-bold text-gray-900">
+                {formatPricePersian(product.price)} <span className="text-xs font-normal text-gray-500">تومان</span>
+              </span>
+            </div>
           </div>
         </div>
       </Link>
     );
   }
 
+  // List view
   if (viewMode === 'list') {
     return (
       <>
-        <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-transparent hover:border-primary/20">
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-200">
           <div className="flex flex-col sm:flex-row gap-4 p-4">
-            <Link href={`/product/${product.slug}`} className="relative w-full sm:w-48 h-48 flex-shrink-0 bg-white rounded-lg">
+            <Link href={`/product/${product.slug}`} className="relative w-full sm:w-48 h-48 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden">
               <img
                 src={product.images[0] || '/images/placeholder.jpg'}
                 alt={product.name}
-                className="absolute inset-0 w-full h-full object-contain p-2 rounded-lg"
+                className="w-full h-full object-contain p-4"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                 }}
               />
               {discount > 0 && (
-                <span className="absolute top-2 right-2 bg-sale text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
-                  {discount}% تخفیف
+                <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                  {toPersianNumbers(discount)}%
                 </span>
-              )}
-              {!product.inStock && (
-                <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center backdrop-blur-sm rounded-lg">
-                  <span className="text-white text-sm font-bold bg-gray-900 px-3 py-1 rounded-lg">ناموجود</span>
-                </div>
               )}
             </Link>
 
             <div className="flex-1 flex flex-col justify-between">
               <div>
                 <Link href={`/product/${product.slug}`}>
-                  <h3 className="text-xl font-semibold text-secondary mb-2 hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 hover:text-primary transition-colors mb-2">
                     {product.name}
                   </h3>
                 </Link>
-
-                <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
-
+                <p className="text-gray-500 text-sm mb-3 line-clamp-2">{product.description}</p>
                 {product.rating && (
                   <div className="flex items-center gap-2 mb-3">
-                    <div className="flex items-center">
-                      <FaStar className="text-yellow-400 text-sm" />
-                      <span className="text-sm text-gray-600 mr-1">{toPersianNumbers(product.rating || 0)}</span>
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm text-gray-600">{toPersianNumbers(product.rating)}</span>
                     </div>
-                    <span className="text-xs text-gray-500">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
+                    <span className="text-xs text-gray-400">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
                   </div>
                 )}
               </div>
@@ -150,68 +176,47 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
                   </span>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setQuickViewOpen(true);
-                    }}
-                    className="p-2.5 rounded-full bg-gray-100 text-gray-600 hover:bg-primary hover:text-white hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg"
+                    onClick={handleQuickView}
+                    className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
                     title="مشاهده سریع"
                   >
-                    <FaEye className="text-lg" />
+                    <Eye className="w-5 h-5" />
                   </button>
-
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (inComparison) {
-                        removeFromComparison(product.id);
-                        toast.success('از لیست مقایسه حذف شد');
-                      } else if (canAddMore) {
-                        addToComparison(product);
-                        toast.success('به لیست مقایسه اضافه شد');
-                      } else {
-                        toast.error('حداکثر 4 محصول قابل مقایسه است');
-                      }
-                    }}
-                    className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inComparison
-                      ? 'bg-blue-500 text-white hover:bg-blue-600'
-                      : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
-                      }`}
-                    title={inComparison ? 'حذف از مقایسه' : 'افزودن به مقایسه'}
+                    onClick={handleComparison}
+                    className={`p-2.5 rounded-xl transition-colors ${
+                      inComparison 
+                        ? 'text-blue-500 bg-blue-50' 
+                        : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+                    }`}
+                    title="مقایسه"
                   >
-                    <FaExchangeAlt className="text-lg" />
+                    <GitCompare className="w-5 h-5" />
                   </button>
-
                   <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      inWishlist ? removeFromWishlist(product.id) : addToWishlist(product);
-                    }}
-                    className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inWishlist
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
-                      }`}
-                    title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
+                    onClick={handleWishlist}
+                    className={`p-2.5 rounded-xl transition-colors ${
+                      inWishlist 
+                        ? 'text-red-500 bg-red-50' 
+                        : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                    }`}
+                    title="علاقه‌مندی"
                   >
-                    <FaHeart className="text-lg" />
+                    <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
                   </button>
-
                   <button
                     onClick={handleAddToCart}
-                    className="bg-accent text-white px-6 py-2.5 rounded-full hover:bg-accent-dark hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center gap-2"
                     disabled={!product.inStock || isAdding}
-                    title="افزودن به سبد خرید"
+                    className="flex items-center gap-2 h-10 px-4 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isAdding ? (
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <>
-                        <FaShoppingCart className="text-lg" />
-                        <span className="hidden sm:inline">افزودن به سبد</span>
-                      </>
+                      <ShoppingBag className="w-4 h-4" />
                     )}
+                    <span className="hidden sm:inline">افزودن</span>
                   </button>
                 </div>
               </div>
@@ -219,78 +224,99 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
           </div>
         </div>
 
-        {/* Quick View Modal */}
-        <QuickViewModal
-          product={product}
-          isOpen={quickViewOpen}
-          onClose={() => setQuickViewOpen(false)}
-        />
+        <QuickViewModal product={product} isOpen={quickViewOpen} onClose={() => setQuickViewOpen(false)} />
       </>
     );
   }
 
+  // Grid view (default)
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-2xl transition-all duration-300 group border border-transparent hover:border-primary/20 flex flex-col h-[480px]">
-        <Link href={`/product/${product.slug}`}>
-          <div className="relative h-64 overflow-hidden bg-white flex-shrink-0">
-            <img
-              src={product.images[0] || '/images/placeholder.jpg'}
-              alt={product.name}
-              className="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
-              }}
-            />
+      <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-200 flex flex-col h-full">
+        <Link href={`/product/${product.slug}`} className="relative aspect-square bg-gray-50 overflow-hidden">
+          <img
+            src={product.images[0] || '/images/placeholder.jpg'}
+            alt={product.name}
+            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
+            }}
+          />
+          
+          {/* Badges */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
             {discount > 0 && (
-              <span className="absolute top-3 right-3 bg-sale text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10 animate-pulse">
-                {discount}% تخفیف
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                {toPersianNumbers(discount)}%
               </span>
             )}
-            {!product.inStock && (
-              <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center backdrop-blur-sm">
-                <span className="text-white text-lg font-bold bg-gray-900 px-4 py-2 rounded-lg">ناموجود</span>
-              </div>
-            )}
             {product.featured && (
-              <span className="absolute top-3 left-3 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
+              <span className="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
                 ویژه
               </span>
             )}
+          </div>
 
-            {/* Quick View Button */}
+          {/* Out of stock overlay */}
+          {!product.inStock && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+              <span className="text-gray-500 font-medium">ناموجود</span>
+            </div>
+          )}
+
+          {/* Quick actions */}
+          <div className="absolute top-3 left-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                setQuickViewOpen(true);
-              }}
-              className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm text-secondary py-3 font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 hover:bg-primary hover:text-white"
+              onClick={handleQuickView}
+              className="p-2 bg-white text-gray-600 hover:text-primary rounded-xl shadow-sm hover:shadow transition-all"
+              title="مشاهده سریع"
             >
-              <FaEye />
-              <span>مشاهده سریع</span>
+              <Eye className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleComparison}
+              className={`p-2 rounded-xl shadow-sm hover:shadow transition-all ${
+                inComparison 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-white text-gray-600 hover:text-blue-500'
+              }`}
+              title="مقایسه"
+            >
+              <GitCompare className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleWishlist}
+              className={`p-2 rounded-xl shadow-sm hover:shadow transition-all ${
+                inWishlist 
+                  ? 'bg-red-500 text-white' 
+                  : 'bg-white text-gray-600 hover:text-red-500'
+              }`}
+              title="علاقه‌مندی"
+            >
+              <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
             </button>
           </div>
         </Link>
 
         <div className="p-4 flex flex-col flex-1">
           <Link href={`/product/${product.slug}`}>
-            <h3 className="text-lg font-semibold text-secondary mb-2 hover:text-primary transition-colors line-clamp-2 h-14">
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 h-10 mb-2 hover:text-primary transition-colors">
               {product.name}
             </h3>
           </Link>
 
           {product.rating && (
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex items-center">
-                <FaStar className="text-yellow-400 text-sm" />
-                <span className="text-sm text-gray-600 mr-1">{toPersianNumbers(product.rating)}</span>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm text-gray-600">{toPersianNumbers(product.rating)}</span>
               </div>
-              <span className="text-xs text-gray-500">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
+              <span className="text-xs text-gray-400">({toPersianNumbers(product.reviewCount || 0)} نظر)</span>
             </div>
           )}
 
-          <div className="flex items-center justify-between mt-auto">
-            <div>
+          <div className="mt-auto">
+            <div className="mb-3">
               {product.originalPrice && (
                 <span className="text-sm text-gray-400 line-through block">
                   {formatPricePersian(product.originalPrice)} تومان
@@ -301,66 +327,23 @@ export default function ProductCard({ product, viewMode = 'grid', compact = fals
               </span>
             </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (inComparison) {
-                    removeFromComparison(product.id);
-                    toast.success('از لیست مقایسه حذف شد');
-                  } else if (canAddMore) {
-                    addToComparison(product);
-                    toast.success('به لیست مقایسه اضافه شد');
-                  } else {
-                    toast.error('حداکثر 4 محصول قابل مقایسه است');
-                  }
-                }}
-                className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inComparison
-                  ? 'bg-blue-500 text-white hover:bg-blue-600'
-                  : 'bg-gray-100 text-gray-600 hover:bg-blue-500 hover:text-white'
-                  }`}
-                title={inComparison ? 'حذف از مقایسه' : 'افزودن به مقایسه'}
-              >
-                <FaExchangeAlt className="text-lg" />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  inWishlist ? removeFromWishlist(product.id) : addToWishlist(product);
-                }}
-                className={`p-2.5 rounded-full hover:scale-110 transition-all duration-200 shadow-md hover:shadow-lg ${inWishlist
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-gray-100 text-gray-600 hover:bg-red-500 hover:text-white'
-                  }`}
-                title={inWishlist ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}
-              >
-                <FaHeart className="text-lg" />
-              </button>
-
-              <button
-                onClick={handleAddToCart}
-                className="bg-accent text-white p-2.5 rounded-full hover:bg-accent-dark hover:scale-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
-                disabled={!product.inStock || isAdding}
-                title="افزودن به سبد خرید"
-              >
-                {isAdding ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                ) : (
-                  <FaShoppingCart className="text-lg" />
-                )}
-              </button>
-            </div>
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.inStock || isAdding}
+              className="w-full flex items-center justify-center gap-2 h-10 bg-gray-900 text-white text-sm font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isAdding ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <ShoppingBag className="w-4 h-4" />
+              )}
+              افزودن به سبد
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={product}
-        isOpen={quickViewOpen}
-        onClose={() => setQuickViewOpen(false)}
-      />
+      <QuickViewModal product={product} isOpen={quickViewOpen} onClose={() => setQuickViewOpen(false)} />
     </>
   );
 }

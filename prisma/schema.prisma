@@ -30,11 +30,11 @@ enum PaymentStatus {
 
 model User {
   id            String   @id @default(uuid())
-  email         String   @unique
+  email         String?  @unique
   passwordHash  String   @map("password_hash")
   firstName     String?  @map("first_name")
   lastName      String?  @map("last_name")
-  phone         String?  @unique
+  phone         String   @unique
   avatar        String?
   loyaltyPoints Int      @default(0) @map("loyalty_points")
   role          UserRole @default(customer)
@@ -124,9 +124,11 @@ model Product {
 
 model ProductImage {
   id           String   @id @default(uuid())
-  productId    String   @map("product_id")
-  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  imageUrl     String   @map("image_url")
+  productId    String?  @map("product_id")
+  product      Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  imageData    Bytes    @map("image_data")
+  mimeType     String   @map("mime_type")
+  fileName     String?  @map("file_name")
   altText      String?  @map("alt_text")
   displayOrder Int      @default(0) @map("display_order")
   isPrimary    Boolean  @default(false) @map("is_primary")

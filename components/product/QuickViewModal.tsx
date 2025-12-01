@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Product } from '@/types';
-import { FaTimes, FaStar, FaShoppingCart, FaHeart, FaExternalLinkAlt } from 'react-icons/fa';
+import { X, Star, ShoppingBag, Heart, ExternalLink, Plus, Minus, Check } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
 import toast from 'react-hot-toast';
+import { toPersianNumbers, formatPricePersian } from '@/lib/utils/persianNumbers';
 
 interface QuickViewModalProps {
   product: Product;
@@ -26,9 +27,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
   const handleAddToCart = () => {
     setIsAdding(true);
     addToCart(product, quantity);
-    toast.success(`${quantity} عدد ${product.name} به سبد خرید اضافه شد`, {
-      icon: '🛒',
-    });
+    toast.success(`${toPersianNumbers(quantity)} عدد ${product.name} به سبد خرید اضافه شد`);
     setTimeout(() => {
       setIsAdding(false);
       setQuantity(1);
@@ -56,54 +55,45 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fade-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div
-          className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto animate-fade-in"
+          className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-xl font-bold text-secondary">مشاهده سریع</h2>
+          <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
+            <h2 className="text-lg font-semibold text-gray-900">مشاهده سریع</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
-              aria-label="بستن"
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
             >
-              <FaTimes className="text-xl" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Content */}
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Images */}
               <div>
-                {/* Main Image */}
-                <div className="relative aspect-square mb-4 rounded-xl overflow-hidden bg-gray-100">
+                <div className="relative aspect-square mb-3 rounded-2xl overflow-hidden bg-gray-50">
                   <img
                     src={product.images[selectedImage] || product.images[0]}
                     alt={product.name}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="w-full h-full object-contain p-4"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                     }}
                   />
                   {discount > 0 && (
-                    <span className="absolute top-4 right-4 bg-sale text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
-                      {discount}% تخفیف
+                    <span className="absolute top-4 right-4 bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-lg">
+                      {toPersianNumbers(discount)}%
                     </span>
-                  )}
-                  {!product.inStock && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                      <span className="text-white text-lg font-bold bg-gray-900 px-6 py-3 rounded-lg">
-                        ناموجود
-                      </span>
-                    </div>
                   )}
                 </div>
 
@@ -114,15 +104,16 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${selectedImage === index
-                          ? 'border-primary ring-2 ring-primary/20'
-                          : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                          selectedImage === index
+                            ? 'border-primary'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
                       >
                         <img
                           src={image}
                           alt={`${product.name} - ${index + 1}`}
-                          className="absolute inset-0 w-full h-full object-cover"
+                          className="w-full h-full object-contain p-1"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = '/images/placeholder.jpg';
                           }}
@@ -135,65 +126,58 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
               {/* Info */}
               <div className="flex flex-col">
-                <h1 className="text-2xl font-bold text-secondary mb-3">
+                <h1 className="text-xl font-bold text-gray-900 mb-3">
                   {product.name}
                 </h1>
 
                 {/* Rating */}
                 {product.rating && (
-                  <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
                     <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <FaStar
-                          key={i}
-                          className={
-                            i < Math.floor(product.rating!)
-                              ? 'text-yellow-400'
-                              : 'text-gray-300'
-                          }
-                        />
-                      ))}
-                      <span className="text-gray-600 mr-2">{product.rating}</span>
+                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium text-gray-700">
+                        {toPersianNumbers(product.rating)}
+                      </span>
                     </div>
-                    <span className="text-gray-500 text-sm">
-                      ({product.reviewCount} نظر)
+                    <span className="text-sm text-gray-400">
+                      ({toPersianNumbers(product.reviewCount || 0)} نظر)
                     </span>
                   </div>
                 )}
 
                 {/* Price */}
-                <div className="mb-6 pb-6 border-b border-gray-200">
+                <div className="mb-6 pb-6 border-b border-gray-100">
                   {product.originalPrice && (
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xl text-gray-400 line-through">
-                        {product.originalPrice.toLocaleString('fa-IR')} تومان
-                      </span>
-                    </div>
+                    <span className="text-lg text-gray-400 line-through block mb-1">
+                      {formatPricePersian(product.originalPrice)} تومان
+                    </span>
                   )}
-                  <div className="text-3xl font-bold text-primary">
-                    {product.price.toLocaleString('fa-IR')} تومان
-                  </div>
+                  <span className="text-2xl font-bold text-primary">
+                    {formatPricePersian(product.price)} تومان
+                  </span>
                 </div>
 
                 {/* Description */}
-                <div className="mb-6">
-                  <h3 className="font-bold text-lg mb-2">توضیحات</h3>
-                  <p className="text-gray-600 leading-relaxed line-clamp-3">
-                    {product.description}
-                  </p>
-                </div>
+                {product.description && (
+                  <div className="mb-6">
+                    <h3 className="text-sm font-semibold text-gray-900 mb-2">توضیحات</h3>
+                    <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">
+                      {product.description}
+                    </p>
+                  </div>
+                )}
 
                 {/* Stock Status */}
                 <div className="mb-6">
                   {product.inStock ? (
                     <div className="flex items-center gap-2 text-green-600">
-                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-                      <span className="font-semibold">موجود در انبار</span>
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm font-medium">موجود در انبار</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-red-600">
-                      <div className="w-2 h-2 bg-red-600 rounded-full"></div>
-                      <span className="font-semibold">ناموجود</span>
+                    <div className="flex items-center gap-2 text-red-500">
+                      <X className="w-4 h-4" />
+                      <span className="text-sm font-medium">ناموجود</span>
                     </div>
                   )}
                 </div>
@@ -201,61 +185,50 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                 {/* Quantity */}
                 {product.inStock && (
                   <div className="mb-6">
-                    <label className="font-semibold mb-2 block">تعداد:</label>
+                    <label className="text-sm font-semibold text-gray-900 mb-2 block">تعداد</label>
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-bold"
+                        className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                       >
-                        -
+                        <Minus className="w-4 h-4 text-gray-600" />
                       </button>
-                      <span className="w-16 text-center font-semibold text-lg">
-                        {quantity}
+                      <span className="w-12 text-center font-semibold text-gray-900">
+                        {toPersianNumbers(quantity)}
                       </span>
                       <button
                         onClick={() => setQuantity(quantity + 1)}
-                        className="w-10 h-10 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-bold"
+                        className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
                       >
-                        +
+                        <Plus className="w-4 h-4 text-gray-600" />
                       </button>
                     </div>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-3 mb-4">
+                <div className="flex gap-3 mt-auto">
                   <button
                     onClick={handleAddToCart}
                     disabled={!product.inStock || isAdding}
-                    className="flex-1 bg-accent text-white py-3 px-6 rounded-lg font-bold hover:bg-accent-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 flex items-center justify-center gap-2 h-12 bg-gray-900 text-white font-medium rounded-xl hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isAdding ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        در حال افزودن...
-                      </>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <>
-                        <FaShoppingCart />
-                        افزودن به سبد خرید
-                      </>
+                      <ShoppingBag className="w-5 h-5" />
                     )}
+                    افزودن به سبد خرید
                   </button>
                   <button
                     onClick={handleWishlist}
-                    className={`w-12 h-12 rounded-lg transition-all flex items-center justify-center ${inWishlist
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : 'border border-gray-300 hover:bg-gray-100'
-                      }`}
-                    title={
+                    className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-colors ${
                       inWishlist
-                        ? 'حذف از علاقه‌مندی‌ها'
-                        : 'افزودن به علاقه‌مندی‌ها'
-                    }
+                        ? 'bg-red-50 border-red-200 text-red-500'
+                        : 'border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50'
+                    }`}
                   >
-                    <FaHeart
-                      className={inWishlist ? 'text-white' : 'text-gray-600'}
-                    />
+                    <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
                   </button>
                 </div>
 
@@ -263,10 +236,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                 <Link
                   href={`/product/${product.slug}`}
                   onClick={onClose}
-                  className="flex items-center justify-center gap-2 text-primary font-semibold hover:gap-3 transition-all py-3 border border-primary rounded-lg hover:bg-primary/5"
+                  className="flex items-center justify-center gap-2 mt-3 h-12 text-primary font-medium border border-primary rounded-xl hover:bg-primary/5 transition-colors"
                 >
-                  <span>مشاهده جزئیات کامل</span>
-                  <FaExternalLinkAlt className="text-sm" />
+                  مشاهده جزئیات کامل
+                  <ExternalLink className="w-4 h-4" />
                 </Link>
               </div>
             </div>

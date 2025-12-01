@@ -3,9 +3,9 @@ import { validationMessages, patterns } from './common';
 
 // Login Schema - هماهنگ با LoginDto در بک‌اند
 export const loginSchema = Yup.object().shape({
-  email: Yup.string()
-    .required('ایمیل الزامی است')
-    .email('ایمیل معتبر نیست'),
+  phone: Yup.string()
+    .required('شماره تلفن الزامی است')
+    .matches(patterns.phone, 'شماره تلفن معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹)'),
   
   password: Yup.string()
     .required('رمز عبور الزامی است')
@@ -14,9 +14,9 @@ export const loginSchema = Yup.object().shape({
 
 // Register Schema - هماهنگ با RegisterDto در بک‌اند
 export const registerSchema = Yup.object().shape({
-  email: Yup.string()
-    .required('ایمیل الزامی است')
-    .email('ایمیل معتبر نیست'),
+  phone: Yup.string()
+    .required('شماره تلفن الزامی است')
+    .matches(patterns.phone, 'شماره تلفن معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹)'),
   
   password: Yup.string()
     .required('رمز عبور الزامی است')
@@ -31,24 +31,20 @@ export const registerSchema = Yup.object().shape({
   
   lastName: Yup.string()
     .max(50, validationMessages.max('نام خانوادگی', 50)),
-  
-  phone: Yup.string()
-    .matches(patterns.phone, 'شماره تلفن معتبر نیست (مثال: ۰۹۱۲۳۴۵۶۷۸۹)'),
 });
 
 // Initial values
 export const loginInitialValues = {
-  email: '',
+  phone: '',
   password: '',
 };
 
 export const registerInitialValues = {
-  email: '',
+  phone: '',
   password: '',
   confirmPassword: '',
   firstName: '',
   lastName: '',
-  phone: '',
 };
 
 export type LoginFormValues = typeof loginInitialValues;

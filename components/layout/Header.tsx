@@ -3,7 +3,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
-import { FaShoppingCart, FaUser, FaSearch, FaBars, FaHeart, FaTimes, FaExchangeAlt, FaSignOutAlt, FaUserCircle, FaMapMarkerAlt } from 'react-icons/fa';
+import { 
+  ShoppingBag, 
+  Heart, 
+  Search, 
+  Menu, 
+  X, 
+  User, 
+  LogOut, 
+  MapPin,
+  ChevronDown,
+  GitCompare,
+  Package
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useCart } from '@/lib/context/CartContext';
 import { useWishlist } from '@/lib/context/WishlistContext';
@@ -12,13 +24,13 @@ import { useAuth } from '@/lib/context/AuthContext';
 import MegaMenu from './MegaMenu';
 import AuthModal from '@/components/auth/AuthModal';
 import toast from 'react-hot-toast';
+import { toPersianNumbers } from '@/lib/utils/persianNumbers';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { totalItems } = useCart();
   const { totalItems: wishlistItems } = useWishlist();
@@ -27,39 +39,11 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Close mobile menu when route changes
   useEffect(() => {
     setMobileMenuOpen(false);
-    setMobileSearchOpen(false);
     setUserMenuOpen(false);
   }, [pathname]);
 
-  // Keyboard shortcut for search (Ctrl+K or Cmd+K)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchExpanded(true);
-        setTimeout(() => {
-          const searchInput = document.getElementById('search-input') as HTMLInputElement;
-          if (searchInput) {
-            searchInput.focus();
-          }
-        }, 100);
-      }
-      // ESC to close search
-      if (e.key === 'Escape') {
-        setSearchExpanded(false);
-        setMobileSearchOpen(false);
-        setSearchQuery('');
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -76,36 +60,7 @@ export default function Header() {
     if (searchQuery.trim()) {
       router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
-      setMobileSearchOpen(false);
-      setSearchExpanded(false);
     }
-  };
-
-  const clearSearch = () => {
-    setSearchQuery('');
-    const searchInput = document.getElementById('search-input') as HTMLInputElement;
-    if (searchInput) {
-      searchInput.focus();
-    }
-  };
-
-  const toggleSearch = () => {
-    setSearchExpanded(!searchExpanded);
-    if (!searchExpanded) {
-      setTimeout(() => {
-        const searchInput = document.getElementById('search-input') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }, 300);
-    } else {
-      setSearchQuery('');
-    }
-  };
-
-  const isActivePath = (path: string) => {
-    if (path === '/') return pathname === '/';
-    return pathname.startsWith(path);
   };
 
   const handleLogout = () => {
@@ -115,235 +70,186 @@ export default function Header() {
     router.push('/');
   };
 
+  const navLinks = [
+    { href: '/', label: 'صفحه اصلی' },
+    { href: '/shop', label: 'فروشگاه' },
+    { href: '/blog', label: 'بلاگ' },
+    { href: '/about', label: 'درباره ما' },
+    { href: '/contact', label: 'تماس با ما' },
+  ];
+
   return (
     <>
-      <header className="bg-white shadow-md sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="container mx-auto px-4">
-          {/* Top Bar */}
-          <div className="flex items-center justify-between py-3">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 shrink-0">
-              <div className="relative w-14 h-14">
+          <div className="flex items-center justify-between h-16 lg:h-20">
+            
+            {/* Right Section - Logo */}
+            <Link href="/" className="flex items-center gap-3 shrink-0">
+              <div className="relative w-10 h-10 lg:w-12 lg:h-12">
                 <Image
                   src="/logo.svg"
-                  alt="Maysa Logo"
+                  alt="مایسا"
                   fill
                   className="object-contain"
                   priority
                 />
               </div>
+              <span className="hidden sm:block text-xl font-bold text-gray-900">مایسا</span>
             </Link>
 
-            {/* Desktop Navigation - Moved to Top Bar */}
-            <nav className="hidden md:flex items-center flex-1 justify-center">
-              <ul className="flex items-center gap-5">
-                <li>
-                  <Link
-                    href="/"
-                    className={`transition-colors font-medium text-sm ${isActivePath('/') && pathname === '/' ? 'text-primary' : 'text-secondary hover:text-primary'}`}
-                  >
-                    صفحه اصلی
-                  </Link>
-                </li>
-                <li>
-                  <MegaMenu />
-                </li>
-                <li>
-                  <Link
-                    href="/shop"
-                    className={`transition-colors font-medium text-sm ${isActivePath('/shop') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
-                  >
-                    فروشگاه
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/blog"
-                    className={`transition-colors font-medium text-sm ${isActivePath('/blog') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
-                  >
-                    بلاگ
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/about"
-                    className={`transition-colors font-medium text-sm ${isActivePath('/about') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
-                  >
-                    درباره ما
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className={`transition-colors font-medium text-sm ${isActivePath('/contact') ? 'text-primary' : 'text-secondary hover:text-primary'}`}
-                  >
-                    تماس با ما
-                  </Link>
-                </li>
-              </ul>
+            {/* Center Section - Navigation (Desktop) */}
+            <nav className="hidden lg:flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    pathname === link.href 
+                      ? 'text-primary bg-primary/5' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <MegaMenu />
             </nav>
 
-            {/* Expandable Search Bar - Desktop */}
-            <div className={`hidden md:flex items-center transition-all duration-500 ease-out ${searchExpanded ? 'absolute left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 z-10' : ''}`}>
-              {searchExpanded ? (
-                <form onSubmit={handleSearch} className="w-full animate-fade-in">
-                  <div className="relative w-full">
-                    <input
-                      id="search-input"
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="جستجوی محصولات..."
-                      className="w-full px-4 py-2.5 pr-12 pl-12 border-2 border-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all bg-white shadow-lg"
-                      onBlur={(e) => {
-                        if (!e.relatedTarget?.closest('.search-container')) {
-                          setTimeout(() => {
-                            if (!searchQuery) setSearchExpanded(false);
-                          }, 200);
-                        }
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-primary hover:scale-110 transition-transform"
-                    >
-                      <FaSearch className="text-lg" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSearchExpanded(false);
-                        setSearchQuery('');
-                      }}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-all hover:scale-110"
-                      aria-label="بستن جستجو"
-                    >
-                      <FaTimes className="text-lg" />
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <button
-                  onClick={toggleSearch}
-                  className="search-container flex items-center gap-2 px-3 py-2 border-2 border-gray-300 rounded-xl hover:border-primary hover:bg-gray-50 transition-all group"
-                  aria-label="جستجو"
-                >
-                  <FaSearch className="text-gray-400 group-hover:text-primary transition-colors" />
-                  <span className="text-gray-400 text-sm hidden lg:inline">جستجوی محصولات...</span>
-                  <div className="hidden lg:flex items-center gap-1 text-xs text-gray-400 mr-2">
-                    <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs font-mono">K</kbd>
-                    <span>+</span>
-                    <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl</kbd>
-                  </div>
-                </button>
-              )}
-            </div>
+            {/* Left Section - Search & Actions */}
+            <div className="flex items-center gap-2 lg:gap-3">
+              
+              {/* Search Bar */}
+              <form onSubmit={handleSearch} className="hidden md:block">
+                <div className={`relative transition-all duration-300 ${searchFocused ? 'w-72' : 'w-56'}`}>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
+                    placeholder="جستجو..."
+                    className="w-full h-10 pl-10 pr-4 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                  />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                </div>
+              </form>
 
-            {/* Icons */}
-            <div className="flex items-center gap-3 md:gap-4">
-              {/* Mobile Search Icon */}
-              <button
-                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-                className="md:hidden text-secondary hover:text-primary transition-colors"
-                aria-label="جستجو"
+              {/* Mobile Search */}
+              <button 
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => router.push('/shop')}
               >
-                <FaSearch className="text-xl" />
+                <Search className="w-5 h-5" />
               </button>
 
-              {/* User Menu - Desktop */}
-              <div className="hidden sm:block relative">
+              {/* Comparison */}
+              <Link
+                href="/comparison"
+                className="hidden sm:flex relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <GitCompare className="w-5 h-5" />
+                {comparisonItems.length > 0 && (
+                  <span className="absolute -top-0.5 -left-0.5 w-4 h-4 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {toPersianNumbers(comparisonItems.length)}
+                  </span>
+                )}
+              </Link>
+
+              {/* Wishlist */}
+              <Link
+                href="/wishlist"
+                className="relative p-2 text-gray-600 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              >
+                <Heart className="w-5 h-5" />
+                {wishlistItems > 0 && (
+                  <span className="absolute -top-0.5 -left-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {toPersianNumbers(wishlistItems)}
+                  </span>
+                )}
+              </Link>
+
+              {/* Cart */}
+              <Link
+                href="/cart"
+                className="relative p-2 text-gray-600 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-0.5 -left-0.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {toPersianNumbers(totalItems)}
+                  </span>
+                )}
+              </Link>
+
+              {/* User Menu */}
+              <div className="relative">
                 {isAuthenticated ? (
                   <>
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center gap-2 text-secondary hover:text-primary transition-colors"
-                      aria-label="منوی کاربری"
+                      className="flex items-center gap-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                     >
-                      <FaUserCircle className="text-2xl" />
-                      <span className="text-sm font-semibold hidden lg:block">{user?.name}</span>
+                      <User className="w-5 h-5" />
+                      <span className="hidden lg:block text-sm font-medium max-w-24 truncate">
+                        {user?.name}
+                      </span>
+                      <ChevronDown className={`hidden lg:block w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {userMenuOpen && (
                       <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setUserMenuOpen(false)}
-                        />
-                        <div className="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50 animate-scale-in">
-                          {/* User Info Header */}
-                          <div className="bg-gradient-to-r from-primary to-primary-dark p-4 text-white">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <FaUserCircle className="text-3xl" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold truncate">{user?.name}</p>
-                                <p className="text-xs text-white/80 truncate">{user?.email}</p>
-                              </div>
-                            </div>
+                        <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                        <div className="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
+                          <div className="p-3 bg-gray-50 border-b border-gray-100">
+                            <p className="font-medium text-gray-900 truncate">{user?.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{user?.phone}</p>
                           </div>
-
-                          {/* Quick Links */}
-                          <div className="py-2">
+                          
+                          <div className="p-1">
                             {(user?.role === 'admin' || user?.role === 'super_admin') && (
                               <Link
                                 href="/admin"
-                                className="flex items-center gap-3 px-4 py-3 text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all group mx-2 rounded-lg mb-2"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                                 onClick={() => setUserMenuOpen(false)}
                               >
-                                <FaUserCircle className="group-hover:scale-110 transition-transform" />
-                                <span className="font-medium">پنل مدیریت</span>
+                                <Package className="w-4 h-4" />
+                                پنل مدیریت
                               </Link>
                             )}
                             <Link
                               href="/account"
-                              className="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-primary/5 transition-all group"
+                              className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                               onClick={() => setUserMenuOpen(false)}
                             >
-                              <FaUser className="text-primary group-hover:scale-110 transition-transform" />
-                              <span className="font-medium">حساب کاربری</span>
+                              <User className="w-4 h-4" />
+                              حساب کاربری
                             </Link>
                             <Link
                               href="/account/orders"
-                              className="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-primary/5 transition-all group"
+                              className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                               onClick={() => setUserMenuOpen(false)}
                             >
-                              <FaShoppingCart className="text-primary group-hover:scale-110 transition-transform" />
-                              <span className="font-medium">سفارشات من</span>
-                            </Link>
-                            <Link
-                              href="/wishlist"
-                              className="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-primary/5 transition-all group"
-                              onClick={() => setUserMenuOpen(false)}
-                            >
-                              <FaHeart className="text-red-500 group-hover:scale-110 transition-transform" />
-                              <div className="flex-1 flex items-center justify-between">
-                                <span className="font-medium">علاقه‌مندی‌ها</span>
-                                {wishlistItems > 0 && (
-                                  <span className="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full font-bold">
-                                    {wishlistItems}
-                                  </span>
-                                )}
-                              </div>
+                              <ShoppingBag className="w-4 h-4" />
+                              سفارشات
                             </Link>
                             <Link
                               href="/account/addresses"
-                              className="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-primary/5 transition-all group"
+                              className="flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
                               onClick={() => setUserMenuOpen(false)}
                             >
-                              <FaMapMarkerAlt className="text-primary group-hover:scale-110 transition-transform" />
-                              <span className="font-medium">آدرس‌ها</span>
+                              <MapPin className="w-4 h-4" />
+                              آدرس‌ها
                             </Link>
                           </div>
-
-                          {/* Logout */}
-                          <div className="border-t">
+                          
+                          <div className="p-1 border-t border-gray-100">
                             <button
                               onClick={handleLogout}
-                              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-all group"
+                              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             >
-                              <FaSignOutAlt className="group-hover:scale-110 transition-transform" />
-                              <span className="font-medium">خروج از حساب</span>
+                              <LogOut className="w-4 h-4" />
+                              خروج
                             </button>
                           </div>
                         </div>
@@ -353,254 +259,113 @@ export default function Header() {
                 ) : (
                   <button
                     onClick={() => setAuthModalOpen(true)}
-                    className="hidden sm:flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary-dark transition-all font-semibold"
-                    aria-label="ورود"
+                    className="hidden sm:flex items-center gap-2 h-10 px-4 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors"
                   >
-                    <FaUser className="text-lg" />
-                    <span>ورود | ثبت نام</span>
+                    <User className="w-4 h-4" />
+                    <span>ورود</span>
                   </button>
                 )}
               </div>
-              <Link
-                href="/comparison"
-                className="hidden sm:block relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5"
-                aria-label="مقایسه محصولات"
-              >
-                <FaExchangeAlt className="text-xl group-hover:scale-110 group-hover:rotate-12 transition-all" />
-                {comparisonItems.length > 0 && (
-                  <span className="absolute -top-1 -left-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
-                    {comparisonItems.length}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/wishlist"
-                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-red-50"
-                aria-label="علاقه‌مندی‌ها"
-              >
-                <FaHeart className="text-xl group-hover:scale-110 group-hover:text-red-500 transition-all" />
-                {wishlistItems > 0 && (
-                  <span className="absolute -top-1 -left-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg animate-pulse">
-                    {wishlistItems}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/cart"
-                className="relative text-secondary hover:text-primary transition-all group p-2 rounded-lg hover:bg-primary/5"
-                aria-label="سبد خرید"
-              >
-                <FaShoppingCart className="text-xl group-hover:scale-110 transition-all" />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -left-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-lg animate-bounce">
-                    {totalItems}
-                  </span>
-                )}
-              </Link>
+
+              {/* Mobile Menu Button */}
               <button
-                className="md:hidden text-secondary"
+                className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="منو"
               >
-                {mobileMenuOpen ? <FaTimes className="text-xl" /> : <FaBars className="text-xl" />}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
-
-          {/* Mobile Search Bar */}
-          {mobileSearchOpen && (
-            <div className="md:hidden pb-4 animate-slide-down">
-              <form onSubmit={handleSearch}>
-                <div className="relative w-full">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="جستجوی محصولات..."
-                    className="w-full px-4 py-2.5 pr-10 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                    autoFocus
-                  />
-                  <button
-                    type="submit"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-all hover:scale-110"
-                  >
-                    <FaSearch />
-                  </button>
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={clearSearch}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-all hover:scale-110"
-                      aria-label="پاک کردن جستجو"
-                    >
-                      <FaTimes />
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
-          )}
-
-
         </div>
       </header>
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu */}
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform transition-all duration-300 ease-out md:hidden ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
+        className={`fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-xl transform transition-transform duration-300 lg:hidden ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
       >
-        <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/5 to-transparent">
-          <h2 className="text-xl font-bold text-secondary flex items-center gap-2">
-            <FaBars className="text-primary" />
-            منو
-          </h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <span className="text-lg font-bold text-gray-900">منو</span>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="text-gray-600 hover:text-primary transition-all hover:rotate-90 p-2 rounded-lg hover:bg-gray-100"
-            aria-label="بستن منو"
+            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
           >
-            <FaTimes className="text-2xl" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="p-4 overflow-y-auto h-[calc(100vh-200px)]">
-          <ul className="space-y-1">
-            <li>
-              <Link
-                href="/"
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/') && pathname === '/' ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                  }`}
-              >
-                صفحه اصلی
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/shop"
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/shop') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                  }`}
-              >
-                فروشگاه
-              </Link>
-            </li>
+        {/* Mobile Search */}
+        <div className="p-4 border-b border-gray-100">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="جستجو..."
+                className="w-full h-10 pl-10 pr-4 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-primary transition-all"
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
+          </form>
+        </div>
 
-            {/* Categories Section */}
-            <li className="pt-2">
-              <div className="px-4 py-2 text-xs font-bold text-gray-500 uppercase flex items-center gap-2">
-                <span className="w-8 h-0.5 bg-gray-300"></span>
-                دسته‌بندی‌ها
-                <span className="flex-1 h-0.5 bg-gray-300"></span>
-              </div>
-              <ul className="space-y-1">
-                <li>
-                  <Link
-                    href="/shop?category=backpack"
-                    className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
-                  >
-                    🎒 کوله پشتی
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop?category=laptop-bag"
-                    className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
-                  >
-                    💼 کیف لپ‌تاپ
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/shop?category=school-bag"
-                    className="block px-4 py-2 rounded-lg text-secondary hover:bg-primary/5 transition-all text-sm transform hover:translate-x-1"
-                  >
-                    🎓 کیف مدرسه
-                  </Link>
-                </li>
-              </ul>
-            </li>
-
-            <li className="pt-2">
-              <Link
-                href="/blog"
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/blog') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                  }`}
-              >
-                بلاگ
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/about"
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/about') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                  }`}
-              >
-                درباره ما
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/contact"
-                className={`block px-4 py-3 rounded-lg transition-all font-medium transform hover:translate-x-1 ${isActivePath('/contact') ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-lg' : 'text-secondary hover:bg-gray-100'
-                  }`}
-              >
-                تماس با ما
-              </Link>
-            </li>
-          </ul>
-
-          <div className="mt-6 pt-6 border-t">
-            {isAuthenticated ? (
-              <>
-                <div className="px-4 py-3 mb-2 bg-primary/10 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <FaUserCircle className="text-2xl text-primary" />
-                    <div>
-                      <p className="font-semibold text-secondary">{user?.name}</p>
-                      <p className="text-xs text-gray-600">{user?.email}</p>
-                    </div>
-                  </div>
-                </div>
-                <Link
-                  href="/account"
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium"
-                >
-                  <FaUser />
-                  <span>حساب کاربری</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors font-medium"
-                >
-                  <FaSignOutAlt />
-                  <span>خروج</span>
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setAuthModalOpen(true);
-                }}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:bg-gray-100 transition-colors font-medium w-full"
-              >
-                <FaUser />
-                <span>ورود / ثبت نام</span>
-              </button>
+        <nav className="p-2 overflow-y-auto h-[calc(100vh-180px)]">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? 'text-primary bg-primary/5'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.label}
+            </Link>
+          ))}
+          
+          <div className="my-2 border-t border-gray-100" />
+          
+          <Link
+            href="/comparison"
+            className="flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <span>مقایسه</span>
+            {comparisonItems.length > 0 && (
+              <span className="w-5 h-5 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                {toPersianNumbers(comparisonItems.length)}
+              </span>
             )}
-          </div>
+          </Link>
+
+          {!isAuthenticated && (
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setAuthModalOpen(true);
+              }}
+              className="w-full mt-4 mx-4 flex items-center justify-center gap-2 h-10 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary/90 transition-colors"
+              style={{ width: 'calc(100% - 32px)' }}
+            >
+              <User className="w-4 h-4" />
+              ورود / ثبت‌نام
+            </button>
+          )}
         </nav>
       </div>
 
-      {/* Auth Modal */}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </>
   );

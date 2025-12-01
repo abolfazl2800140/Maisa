@@ -1,6 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
+  Param,
+  Res,
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
@@ -8,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { Response } from 'express';
 import { UploadService } from './upload.service';
 
 @ApiTags('upload')
@@ -35,10 +39,11 @@ export class UploadController {
       throw new BadRequestException('فایلی انتخاب نشده است');
     }
 
-    const url = await this.uploadService.uploadImage(file);
+    const id = await this.uploadService.uploadImage(file);
     return {
       success: true,
-      url,
+      id,
+      url: `/upload/image/${id}`,
       message: 'تصویر با موفقیت آپلود شد',
     };
   }
@@ -60,18 +65,32 @@ export class UploadController {
       },
     },
   })
-  @UseInterceptors(FilesInterceptor('files', 10)) // حداکثر 10 فایل
+  @UseInterceptors(FilesInterceptor('files', 10))
   async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
     if (!files || files.length === 0) {
       throw new BadRequestException('فایلی انتخاب نشده است');
     }
 
-    const urls = await this.uploadService.uploadMultipleImages(files);
+    const ids = await this.uploadService.uploadMultipleImages(files);
     return {
       success: true,
-      urls,
-      count: urls.length,
-      message: `${urls.length} تصویر با موفقیت آپلود شد`,
+      ids,
+      urls: ids.map(id => `/upload/image/${id}`),
+      count: ids.length,
+      message: `${ids.length} تصویر با موفقیت آپلود شد`,
     };
+  }
+
+  @Get('image/:id')
+  @ApiOperation({ summary: 'دریافت تصویر' })
+  async getImage(@Param('id') id: string, @Res() res: Response) {
+    const image = await this.uploadService.getImage(id);
+    
+    res.set({
+      'Content-Type': image.mimeType,
+      'Cache-Control': 'public, max-age=31536000',
+    });
+    
+    res.send(image.data);
   }
 }
